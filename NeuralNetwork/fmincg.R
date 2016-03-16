@@ -68,12 +68,12 @@ fmincg<-function(f, X, options_ = 100, P1, P2, P3, P4, P5, P6) {
 	
 	S='Iteration '
 
-	RHO = 0.01		# a bunch of constants for line searches
+	RHO = 0.01	# a bunch of constants for line searches
 	SIG = 0.5		# RHO and SIG are the constants in the Wolfe-Powell conditions
 	INT = 0.1		# don't reevaluate within 0.1 of the limit of the current bracket
 	EXT = 3.0		# extrapolate maximum 3 times the current bracket
 	MAX = 20		# max 20 function evaluations per line search
-	RATIO = 100		# maximum allowed slope ratio
+	RATIO = 100	# maximum allowed slope ratio
 
 	i = 0 			# zero the run length counter
 	ls_failed = 0	# no previous line search has failed
@@ -87,9 +87,9 @@ fmincg<-function(f, X, options_ = 100, P1, P2, P3, P4, P5, P6) {
 	# count epochs?!
 	i = i + (runLength < 0)
 	
-	s = -df1            # search direction is steepest
-	d1 = t(-s) %*% s    # this is the slope
-	z1 = red/(1 - d1)	# initial step is red/(|s|+1)
+	s = -df1          # search direction is steepest
+	d1 = t(-s) %*% s  # this is the slope
+	z1 = red/(1 - d1) # initial step is red/(|s|+1)
 
 	while (i < abs(runLength)) {
 	  
@@ -145,7 +145,7 @@ fmincg<-function(f, X, options_ = 100, P1, P2, P3, P4, P5, P6) {
 					z2 = suppressWarnings((sqrt(B * B - A * d2 * z3 * z3)- B)/A)
 				}
 			
-				if (is.nan(z2) || is.infinite(z2)) {
+				if (is.nan(z2) || is.infinite(z2) || !is.numeric(z2)) {
 					# if we had a numerical problem then bisect
 					z2 = z3 / 2
 				}
@@ -195,14 +195,14 @@ fmincg<-function(f, X, options_ = 100, P1, P2, P3, P4, P5, P6) {
 			if (!is.numeric(z2) || is.nan(z2) || is.infinite(z2) || z2 < 0) {
 				# if we have no upper limit
 				if (limit < -0.5) {
-					# the extrapolate the maximum amount
+					# then extrapolate the maximum amount
 					z2 = z1 * (EXT - 1)
 				} else {
 					# otherwise bisect
 					z2 = (limit - z1) / 2
 				}
 			} else if ((limit > -0.5) && (z2+z1 > limit)) {
-				# extraplation beyond max?
+				# extrapolation beyond max?
 				z2 = (limit - z1) / 2
 			} else if ((limit < -0.5) && (z2 + z1 > z1 * EXT)) {
 				# extrapolation beyond limit?

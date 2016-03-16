@@ -245,7 +245,9 @@ fmincg<-function(f, X, options_ = 100, P1, P2, P3, P4, P5, P6) {
 			f1 = f2
 			fX = f1
 			
-			print(paste0(S, i, "| Cost: ", f1))
+			if (i %% 1000 == 0) {
+				print(paste0(S, i, "| Cost: ", f1))
+			}
 			
 			# Polack-Ribiere direction
 			s = ((t(df2) %*% df2 - t(df1) %*% df2) / (t(df1) %*% df1)) * s - df2

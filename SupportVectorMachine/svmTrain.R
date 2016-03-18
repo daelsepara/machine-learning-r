@@ -1,4 +1,4 @@
-svmTrain <- function(X, Y, C, kernelFunction, tol, max_passes, kernelParam) {
+svmTrain <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 #SVMTRAIN Trains an SVM classifier using a simplified version of the SMO 
 #algorithm. 
 #   [model] = SVMTRAIN(X, Y, C, kernelFunction, tol, max_passes) trains an
@@ -18,7 +18,10 @@ svmTrain <- function(X, Y, C, kernelFunction, tol, max_passes, kernelParam) {
 #           SVMLight (http://svmlight.joachims.org/)
 #
 # Converted to R by: SD Separa (2016/03/18)
-
+	
+	# for bsxfun and strcmp
+	require(pracma)
+	
 	if (missing(tol) || is.null(tol)) {
 		tol = 10^(-3)
 	}
@@ -43,22 +46,23 @@ svmTrain <- function(X, Y, C, kernelFunction, tol, max_passes, kernelParam) {
 	L = 0
 	H = 0
 
+	kernelFunc = as.character(substitute(kernelFunction))
+	
 	# Pre-compute the Kernel Matrix since our dataset is small
 	# (in practice, optimized SVM packages that handle large datasets
 	#  gracefully will *not* do this)
 	# 
 	# We have implemented optimized vectorized version of the Kernels here so
 	# that the svm training will run faster.
-	if (as.character(substitute(kernelFunction)) == 'linearKernel') {
+	if (strcmp(kernelFunc, 'linearKernel')) {
 		# Vectorized computation for the Linear Kernel
 		# This is equivalent to computing the kernel on every pair of examples
 		K = X %*% t(X)
-	} else if (as.character(substitute(kernelFunction)) == 'gaussianKernel') {
+	} else if (strcmp(kernelFunc, 'gaussianKernel')) {
 		# Vectorized RBF Kernel
 		# This is equivalent to computing the kernel on every pair of examples
-		X2 = rowSums(X^2)
-		XX = X %*% t(X)
-		K = array(mapply('+', X2, t(array(mapply('+', t(X2), - 2 * XX), dim(XX)))), dim(XX))
+		X2 = as.matrix(rowSums(X^2))
+		K = bsxfun('+', repmat(X2, 1, nrow(X)), bsxfun('+', repmat(t(X2), nrow(X), 1), - 2 * X %*% t(X)))
 		K = kernelFunction(1, 0, kernelParam)^K
 	} else {
 		# Pre-compute the Kernel Matrix
@@ -71,7 +75,7 @@ svmTrain <- function(X, Y, C, kernelFunction, tol, max_passes, kernelParam) {
 			}
 		}
 	}
-
+	
 	# Train
 	cat('Training ...')
 	dots = 12

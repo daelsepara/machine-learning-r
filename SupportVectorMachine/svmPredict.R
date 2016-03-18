@@ -8,6 +8,9 @@ svmPredict <- function(model, X) {
 #
 # Converted to R by: SD Separa (2016/03/18)
 
+	# for bsxfun and strcmp
+	require(pracma)
+	
 	# Check if we are getting a column vector, if so, then assume that we only
 	# need to do prediction for a single example
 	if (ncol(X) == 1) {
@@ -23,20 +26,20 @@ svmPredict <- function(model, X) {
 	# [sdsepara] map model kernel function to an actual function
 	kernelFunction <- match.fun(model$kernelFunction)
 	
-	if (!is.na(pmatch(model$kernelFunction, 'linearKernel'))) {
+	if (strcmp(model$kernelFunction,'linearKernel')) {
 		# We can use the weights and bias directly if working with the 
 		# linear kernel
 		p = X %*% model$w + model$b
-	} else if (!is.na(pmatch(model$kernelFunction, 'gaussianKernel'))) {
+	} else if (strcmp(model$kernelFunction, 'gaussianKernel')) {
 		# Vectorized RBF Kernel
 		# This is equivalent to computing the kernel on every pair of examples
-		X1 = rowSums(X^2)
-		X2 = t(rowSums(model$X^2))
-		K = mapply('+', X1, mapply('+', X2, - 2 * X %*% t(model$X)))
+		X1 = as.matrix(rowSums(X^2))
+		X2 = t(as.matrix(rowSums(model$X^2)))
+		K = bsxfun('+', repmat(X1, 1, ncol(X2)), bsxfun('+', repmat(X2, nrow(X1), 1), -2*X%*%t(model$X)))
 		K = kernelFunction(1, 0, model$kernelParam)^K
-		K = mapply('*', t(model$y), K)
-		K = mapply('*', t(model$alphas), K)
-		p = rowSums(array(K, dim(X)))
+		K = bsxfun('*', repmat(t(model$y), nrow(X1), 1), K)
+		K = bsxfun('*', repmat(t(model$alphas), nrow(X1), 1), K)
+		p = rowSums(K)
 	} else {
 		# Other Non-linear kernel
 		for (i in 1:m) {

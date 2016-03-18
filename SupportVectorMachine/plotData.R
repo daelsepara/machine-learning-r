@@ -12,6 +12,6 @@ plotData <- function(X, y) {
 	neg = which(y == 0)
 
 	# Plot Examples
-	plot(X[pos, 1], X[pos, 2], pch = 3, xlab = '', ylab = '', col = 'black')
-	points(X[neg, 1], X[neg, 2], pch = 19, col = 'yellow')
+	plot(X[pos, 1], X[pos, 2], pch = 3, xlab = '', ylab = '', col = 'blue')
+	points(X[neg, 1], X[neg, 2], pch = 19, col = 'red')
 }

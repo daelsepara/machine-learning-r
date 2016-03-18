@@ -21,5 +21,5 @@ visualizeBoundary <- function(X, y, model, varargin) {
 	   vals[, i] = svmPredict(model, this_X);
 	}
 
-	contour(x = x1plot, y = x2plot, z = t(vals), col = 'blue', add = TRUE, lw = 1)
+	contour(x = x1plot, y = x2plot, z = t(vals), col = 'green', add = TRUE, lw = 1)
 }

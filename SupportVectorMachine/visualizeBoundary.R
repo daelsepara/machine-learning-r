@@ -1,7 +1,9 @@
-visualizeBoundary <- function(X, y, model, varargin) {
+visualizeBoundary <- function(X, y, model) {
 #VISUALIZEBOUNDARY plots a non-linear decision boundary learned by the SVM
 #   VISUALIZEBOUNDARYLINEAR(X, y, model) plots a non-linear decision 
 #   boundary learned by the SVM and overlays the data on it
+#
+# Converted to R by: SD Separa (2016/03/18)
 
 	# Plot the training data on top of the boundary
 	plotData(X, y)
@@ -18,7 +20,7 @@ visualizeBoundary <- function(X, y, model, varargin) {
 
 	for (i in 1:ncol(X1)) {
 	   this_X = cbind(X1[,i], X2[,i])
-	   vals[, i] = svmPredict(model, this_X);
+	   vals[, i] = svmPredict(model, this_X)
 	}
 
 	contour(x = x1plot, y = x2plot, z = t(vals), col = 'green', add = TRUE, lw = 1)

@@ -8,6 +8,9 @@ svmPredict <- function(model, X) {
 #
 # Converted to R by: SD Separa (2016/03/18)
 
+	# [sdsepara] for strcmp function
+	require(pracma)
+	
 	# Check if we are getting a column vector, if so, then assume that we only
 	# need to do prediction for a single example
 	if (ncol(X) == 1) {

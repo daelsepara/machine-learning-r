@@ -8,9 +8,6 @@ svmPredict <- function(model, X) {
 #
 # Converted to R by: SD Separa (2016/03/18)
 
-	# [sdsepara] for strcmp function
-	require(pracma)
-	
 	# Check if we are getting a column vector, if so, then assume that we only
 	# need to do prediction for a single example
 	if (ncol(X) == 1) {
@@ -26,11 +23,11 @@ svmPredict <- function(model, X) {
 	# [sdsepara] map model kernel function to an actual function
 	kernelFunction <- match.fun(model$kernelFunction)
 	
-	if (strcmp(model$kernelFunction, 'linearKernel')) {
+	if (!is.na(pmatch(model$kernelFunction, 'linearKernel'))) {
 		# We can use the weights and bias directly if working with the 
 		# linear kernel
 		p = X %*% model$w + model$b
-	} else if (strcmp(model$kernelFunction, 'gaussianKernel')) {
+	} else if (!is.na(pmatch(model$kernelFunction, 'gaussianKernel'))) {
 		# Vectorized RBF Kernel
 		# This is equivalent to computing the kernel on every pair of examples
 		X1 = rowSums(X^2)

@@ -35,10 +35,11 @@ svmPredict <- function(model, X) {
 		# This is equivalent to computing the kernel on every pair of examples
 		X1 = as.matrix(rowSums(X^2))
 		X2 = t(as.matrix(rowSums(model$X^2)))
-		K = bsxfun('+', repmat(X1, 1, ncol(X2)), bsxfun('+', repmat(X2, nrow(X1), 1), -2*X%*%t(model$X)))
+		rows = nrow(X1)
+		K = bsxfun('+', repmat(X1, 1, ncol(X2)), bsxfun('+', repmat(X2, rows, 1), -2*X%*%t(model$X)))
 		K = kernelFunction(1, 0, model$kernelParam)^K
-		K = bsxfun('*', repmat(t(model$y), nrow(X1), 1), K)
-		K = bsxfun('*', repmat(t(model$alphas), nrow(X1), 1), K)
+		K = bsxfun('*', repmat(t(model$y), rows, 1), K)
+		K = bsxfun('*', repmat(t(model$alphas), rows, 1), K)
 		p = rowSums(K)
 	} else {
 		# Other Non-linear kernel

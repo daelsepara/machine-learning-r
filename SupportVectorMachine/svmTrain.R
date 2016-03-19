@@ -62,7 +62,7 @@ svmTrain <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 		# Vectorized RBF Kernel
 		# This is equivalent to computing the kernel on every pair of examples
 		X2 = as.matrix(rowSums(X^2))
-		K = bsxfun('+', repmat(X2, 1, nrow(X)), bsxfun('+', repmat(t(X2), nrow(X), 1), - 2 * X %*% t(X)))
+		K = bsxfun('+', repmat(X2, 1, m), bsxfun('+', repmat(t(X2), m, 1), - 2 * X %*% t(X)))
 		K = kernelFunction(1, 0, kernelParam)^K
 	} else {
 		# Pre-compute the Kernel Matrix
@@ -184,7 +184,7 @@ svmTrain <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 	model<-list()
 	model$X = X[idx,]
 	model$y = Y[idx]
-	model$kernelFunction = as.character(substitute(kernelFunction))
+	model$kernelFunction = kernelFunc
 	model$kernelParam = kernelParam
 	model$b = b
 	model$alphas=alphas[idx]

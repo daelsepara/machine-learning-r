@@ -1,17 +1,18 @@
-# sigmoid activation function
 h_func <- function(x) {
+# Sigmoid activation function
+  
 	return(1/(1 + exp(-x)))
 }
 
-# 1st-derivative of activation function
 h_funcd <- function(x) {
-	z = h_func(x)
+# 1st-derivative of activation function
+  z = h_func(x)
 	return(z * (1 - z))
 }
 
-# forward propagation
 nnet_forward <- function(training_set, w_ji, w_kj) {
-	
+# Forward propagation
+  
 	# add bias column to input layer
 	x = cbind(array(1, c(nrow(training_set), 1)), training_set)
 	
@@ -28,9 +29,9 @@ nnet_forward <- function(training_set, w_ji, w_kj) {
 	return(list('y_k' = y_k, 'z_2' = z_2, 'a_2' = a_2))
 }
 
-# backward propagation
 nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lambda = 0) {
-	
+# Backward propagation
+  
 	# add bias column
 	x = cbind(array(1, c(nrow(training_set), 1)), training_set)
 	m = nrow(x)
@@ -65,9 +66,9 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
 	return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost))	
 }
 
-# neutral network cost function for use with advanced optimization method (fmincg)
 nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6) {
-
+# Neutral network cost function for use with advanced optimization method (fmincg)
+  
 	# P1 training_set
 	# P2 y_matrix (expected output)
 	# P3 number of input units
@@ -91,9 +92,9 @@ nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6) {
 	return(list('J' = result$Error, 'grad' = grad))
 }
 
-# network training
 nnet_train <-function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE) {
-
+# Network training
+  
 	# For multi-classification problem, format expected output
 	# i.e. matrix, each row corresponds to a training pattern.
 	# Each element in the row-vector is a 0 or 1 indicating whether
@@ -151,9 +152,9 @@ nnet_train <-function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), trainin
 	return(list('y_k' = y_k, 'Error' = Error, 'iterations' = iter, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
-# network training (using advanced optimization algorithm fmincg)
 nnet_optimize <-function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0) {
-
+# Network training using advanced optimization algorithm fmincg
+  
 	# For multi-classification problem, format expected output
 	# i.e. matrix, each row corresponds to a training pattern.
 	# Each element in the row-vector is a 0 or 1 indicating whether
@@ -196,9 +197,9 @@ nnet_optimize <-function(maxiter = 100, training_set = array(0) , output = array
 	return(list('y_k' = y_k, 'Error' = Error, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
-# predict using neural network parameters (multi-class classification)
 nnet_predict <- function(test_set, w_ji, w_kj, threshold = 0.5) {
-
+# Predict using neural network parameters (multi-class classification)
+  
 	prediction_output = nnet_forward(test_set, w_ji, w_kj)$y_k
 	
 	m = nrow(test_set)

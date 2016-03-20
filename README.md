@@ -19,3 +19,9 @@ This is a repository for R scripts developed during my machine learning studies.
 
 - normalize all features of X is an (m x n) matrix: m-examples with n-features (featureNormalize)
 
+## K-means clustering ##
+
+- initialization of K-centroids (kmeans_initialize)
+- cluster assignment to nearest centroid (kmeans_assign)
+- compute new centroids from all points belonging to K-clusters (kmeans_compute)
+- run K-means algorithm for a maximum number of iterations (kmeans_run)

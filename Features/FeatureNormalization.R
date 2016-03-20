@@ -2,7 +2,7 @@ featureNormalize <- function(X) {
 # Normalize features of X. X is a matrix of m-examples and n-features. Each feature will have a mean of 0
 # and a standard deviation of 1.
   
-  # bsxfun is in pracma library
+  # bsxfun and repmat are implemented in pracma library
   require(pracma)
   
   m = nrow(X)

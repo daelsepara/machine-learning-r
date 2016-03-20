@@ -14,3 +14,8 @@ This is a repository for R scripts developed during my machine learning studies.
 - training, prediction (svmTrain, svmPredict)
 - decision boundary visualization (plotData, visualizeBoundary)
 - linear and gaussian kernels (linearKernel, gaussianKernel)
+
+## Feature Normalization ##
+
+- normalize all features of X[m-examples, n-features] (featureNormalize)
+

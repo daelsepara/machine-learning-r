@@ -8,10 +8,10 @@ featureNormalize <- function(X) {
   m = nrow(X)
   
   # get mean of each feature and subtract it from all elements of X
-  X = bsxfun('-', X, repmat(apply(X, 2, mean), m, 1))
+  X_norm = bsxfun('-', X, repmat(apply(X, 2, mean), m, 1))
   
   # get standard deviation and dividate it from all elements of X
-  X = bsxfun('/', X, repmat(apply(X, 2, sd), m, 1))
+  X_norm = bsxfun('/', X, repmat(apply(X, 2, sd), m, 1))
   
-  return(X)
+  return(X_norm)
 }

@@ -17,5 +17,5 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Feature Normalization ##
 
-- normalize all features of X[m-examples, n-features] (featureNormalize)
+- normalize all features of X is an (m x n) matrix: m-examples with n-features (featureNormalize)
 

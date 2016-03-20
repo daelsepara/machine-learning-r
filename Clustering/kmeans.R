@@ -81,7 +81,7 @@ kmeans_assign <- function(X, centroids) {
 }
 
 kmeans_compute <- function(X, clusters, K = nrow(X)) {
-# Finds closest centroid to each example in X and assign cluster number
+# Computes new centroid locations
 #
 # Inputs:
 #   X[m, n] training set

@@ -15,13 +15,19 @@ This is a repository for R scripts developed during my machine learning studies.
 - decision boundary visualization (plotData, visualizeBoundary)
 - linear and gaussian kernels (linearKernel, gaussianKernel)
 
-## Feature Normalization ##
+## Features ##
 
 - normalize all features of X is an (m x n) matrix: m-examples with n-features (featureNormalize)
-- principal component analysis (pca)
-- project and approximate X using K-components of PCA (pca_project, pca_estimate)
 
-## K-means clustering ##
+## Principal Component Analysis ##
+
+- compute principal components (pca)
+- create projections of X (onto U) using K principal components (pca_project)
+- create approximations of X using K principal components (pca_estimate)
+
+## Clustering ##
+
+### k-means clustering ###
 
 - initialization of K-centroids (kmeans_initialize)
 - cluster assignment to nearest centroid (kmeans_assign)

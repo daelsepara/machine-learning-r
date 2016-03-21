@@ -44,9 +44,6 @@ pca_project <- function(X, U, K = ncol(U)) {
 #   Z projection of X on U using the first K-components
 #
 
-	m = nrow(X)
-	Z = array(0, c(m, K))
-
 	# project X onto U using only the first K-components
 	Z = t(t(U[,1:K]) %*% t(X))
 	

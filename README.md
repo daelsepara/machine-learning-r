@@ -18,6 +18,8 @@ This is a repository for R scripts developed during my machine learning studies.
 ## Feature Normalization ##
 
 - normalize all features of X is an (m x n) matrix: m-examples with n-features (featureNormalize)
+- principal component analysis (pca)
+- project and approximate data X using K-components of PCA (pca_project, pca_estimate)
 
 ## K-means clustering ##
 

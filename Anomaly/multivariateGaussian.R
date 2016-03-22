@@ -1,5 +1,5 @@
-multivariateGaussian <- function(X, mu = 0, variance = 1) {
-# Computes the multivariate gaussian distribution probability density function
+multivariate_gaussian <- function(X, mu = 0, variance = 1) {
+# Computes the multivariate Gaussian distribution probability density function
 #
 # Inputs:
 # X[m, n] data set (m-examples, 2-features)

@@ -1,4 +1,4 @@
-estimateGaussian <- function(X) {
+estimate_gaussian <- function(X) {
 # estimates Gaussian distribution parameters of X
 #
 # Inputs:

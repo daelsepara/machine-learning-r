@@ -27,9 +27,9 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Anomaly Detection ##
 
-- estimate Guassian distribution parameters: mean, variance (estimateGaussian)
-- compute multivariate Gaussian probability distribution function (multivariateGaussian)
-- determine best prediction threshold to use (selectThreshold)
+- estimate Guassian distribution parameters: mean, variance (estimate_gaussian)
+- compute multivariate Gaussian probability distribution function (multivariate_gaussian)
+- determine best prediction threshold to use (select_threshold)
 
 ## Collaborative Filtering ##
 

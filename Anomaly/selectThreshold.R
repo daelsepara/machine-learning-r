@@ -1,4 +1,4 @@
-selectThreshold <- function(y, p) {
+select_threshold <- function(y, p) {
 # Determine best threshold to use to detect outliers
 #
 # Inputs:

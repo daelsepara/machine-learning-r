@@ -14,7 +14,7 @@ multivariateGaussian <- function(X, mu = 0, variance = 1) {
   require(pracma)
   
   # create diagonal matrix whose primary diagonal elements contains the variance
-  if ((is.null(dim(variance)) && length(variance) > 0) || (nrow(variance) == 1 || ncol(variance) == 1 )) {
+  if ((is.null(dim(variance)) && length(variance) > 0) || is.vector(variance)) {
     sigma2 = diag(variance)
   } else {
     sigma2 = variance

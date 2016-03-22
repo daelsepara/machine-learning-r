@@ -18,5 +18,5 @@ estimateGaussian <- function(X) {
 	#
 	sigma2 = apply(X, 2, var)*(m - 1)/m
 	
-	return(list('mu' = mu, 'var' = sigma2));
+	return(list('mean' = mu, 'variance' = sigma2))
 }

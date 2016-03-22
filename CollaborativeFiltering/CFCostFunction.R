@@ -22,5 +22,5 @@ CFCostFunction <- function(X, Theta, Y, R, lambda) {
 	gradX = (R*(t(Theta*t(X)) - Y)) %*% Theta + lambda*X
 	gradTheta = (R*t(t(Theta*t(X)) - Y)) %*% X  + lambda*Theta
 	
-	return(list())
+	return(list('J' = J, 'gradX' = gradX, 'gradTheta' = gradTheta))
 }

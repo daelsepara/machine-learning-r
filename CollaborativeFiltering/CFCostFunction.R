@@ -24,3 +24,26 @@ CFCostFunction <- function(X, Theta, Y, R, lambda) {
 	
 	return(list('J' = J, 'X_grad' = gradX, 'Theta_grad' = gradTheta))
 }
+
+CFOptimizeCost <- function(theta, P1, P2, P3 , P4, P5, P6) {
+# Cost function for use with advanced optimization method (fmincg)
+  
+	# theta (X and Theta)
+	# P1 Y
+	# P2 R
+	# P3 lambda
+	# P4 number of users
+	# P5 number of products
+	# P6 number of features
+	
+	# roll up vectors into arrays
+	offs = P5*P6
+	X = array(theta[1:offs], c(P5, P6))
+	Theta = array(theta[(offs+1):length(theta)], c(P4, P6))
+	result = CFCostFunction(X, Theta, P1, P2, P3);
+	
+	# unroll gradient matrices into one vector
+	grad = c(as.vector(result$X_grad), as.vector(result$Theta_grad))
+
+	return(list('J' = result$J, 'grad' = grad))
+}

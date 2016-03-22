@@ -12,6 +12,9 @@ pca  <- function(X, center = TRUE) {
 # 	d = singular values (standard deviation)
 	
 	if (center) {
+		# for repmat
+		require(repmat)
+		
 		# center X so that the mean is ~ 0
 		Xn = X - repmat(apply(X, 2, mean), nrow(X), 1)
 	} else {

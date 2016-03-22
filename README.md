@@ -25,6 +25,12 @@ This is a repository for R scripts developed during my machine learning studies.
 - create projections of X (onto U) using K principal components (pca_project)
 - create approximations of X using K principal components (pca_estimate)
 
+## Anomaly Detection ##
+
+- estimate Guassian distribution parameters: mean, variance (estimateGaussian)
+- compute multivariate Gaussian probability distribution function (multivariateGaussian)
+- determine best prediction threshold to use (selectThreshold)
+
 ## Clustering ##
 
 ### k-means clustering ###

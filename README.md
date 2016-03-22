@@ -31,6 +31,11 @@ This is a repository for R scripts developed during my machine learning studies.
 - compute multivariate Gaussian probability distribution function (multivariateGaussian)
 - determine best prediction threshold to use (selectThreshold)
 
+## Collaborative Filtering ##
+
+- compute cost function and gradients with Regularization (CFCostFunction )
+- cost function for use with fast gradient descent computation fmincg (CFOptimizeCost )
+
 ## Clustering ##
 
 ### k-means clustering ###

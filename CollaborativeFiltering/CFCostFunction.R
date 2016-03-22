@@ -1,4 +1,4 @@
-CFCostFunction <- function(X, Theta, Y, R, lambda) {
+cf_costfunction <- function(X, Theta, Y, R, lambda) {
 # Collaborative filtering cost function
 #
 # Inputs:
@@ -22,7 +22,7 @@ CFCostFunction <- function(X, Theta, Y, R, lambda) {
 	return(list('J' = J, 'X_grad' = gradX, 'Theta_grad' = gradTheta))
 }
 
-CFOptimizeCost <- function(theta, P1, P2, P3 , P4, P5, P6) {
+cf_fmincg_cost <- function(theta, P1, P2, P3 , P4, P5, P6) {
 # Cost function for use with advanced optimization method (fmincg)
   
 	# theta (X and Theta)
@@ -37,7 +37,7 @@ CFOptimizeCost <- function(theta, P1, P2, P3 , P4, P5, P6) {
 	offs = P5*P6
 	X = array(theta[1:offs], c(P5, P6))
 	Theta = array(theta[(offs+1):length(theta)], c(P4, P6))
-	result = CFCostFunction(X, Theta, P1, P2, P3)
+	result = cf_costfunction(X, Theta, P1, P2, P3)
 	
 	# unroll gradient matrices into one vector
 	grad = c(as.vector(result$X_grad), as.vector(result$Theta_grad))
@@ -45,8 +45,8 @@ CFOptimizeCost <- function(theta, P1, P2, P3 , P4, P5, P6) {
 	return(list('J' = result$J, 'grad' = grad))
 }
 
-CFOptimize <- function(X, Theta, Y, R, lambda, iterations = 100) {
-# Algorithm to use fmincg with CFCostFunction
+cf_optimize <- function(X, Theta, Y, R, lambda, iterations = 100) {
+# Algorithm to run fmincg with CFCostFunction
 # Collaborative filtering cost function
 #
 # Inputs:
@@ -75,7 +75,7 @@ CFOptimize <- function(X, Theta, Y, R, lambda, iterations = 100) {
 	initial_params = c(as.vector(randX), as.vector(randTheta))
 	
 	# optimize cost function
-	result = fmincg(CFOptimizeCost, initial_params, iterations, Y, R, lambda, num_users, num_products, num_features)
+	result = fmincg(cf_fmincg_cost, initial_params, iterations, Y, R, lambda, num_users, num_products, num_features)
 	
 	# roll up result into arrays
 	offs = num_products*num_features

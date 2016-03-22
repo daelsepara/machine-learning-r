@@ -33,8 +33,8 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Collaborative Filtering ##
 
-- compute cost function and gradients with Regularization (CFCostFunction )
-- cost function for use with fast gradient descent computation fmincg (CFOptimizeCost )
+- compute cost function and gradients with Regularization (cf_costfunction )
+- optimize using fast gradient descent optimizer fmincg (cf_optimize, cf_fmincg_cost)
 
 ## Clustering ##
 

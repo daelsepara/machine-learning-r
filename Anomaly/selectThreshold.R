@@ -1,10 +1,18 @@
 selectThreshold <- function(y, p) {
 # Determine best threshold to use to detect outliers
 #
-
+# Inputs:
+# y[m] test set (m sample)
+# p[m] predicted values for test set X from estimated multivariate Gaussian PDF (using estimated parameters)
+#
+# Outputs:
+#   epsilon: Best prediction threshold to use
+#   F1: F1 score on epsilon
+  
 	epsilon_Best = 0
 	F1_Best = 0
 
+	# setup scan range
 	stepsize = (max(p) - min(p)) / 1000
 	
 	for (epsilon in seq(min(p), max(p), by = stepsize)) {

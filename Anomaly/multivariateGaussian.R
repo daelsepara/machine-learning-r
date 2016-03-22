@@ -5,7 +5,6 @@ multivariateGaussian <- function(X, mu = 0, variance = 1) {
 # X[m, n] data set (m-examples, 2-features)
 #   mu[n] mean of each feature
 #  var[n] variance of each feature
-
 #
 # Outputs:
 #   p[m] multivariate gaussian distribution probability density function

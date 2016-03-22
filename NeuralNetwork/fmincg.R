@@ -301,5 +301,5 @@ fmincg<-function(f, X, options_ = 100, P1, P2, P3, P4, P5, P6) {
 		}
 	}
 	
-	return(list('X' = X, 'cost' = fX))
+	return(list('X' = X, 'cost' = fX, 'iterations' = i))
 }

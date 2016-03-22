@@ -17,7 +17,7 @@ CFCostFunction <- function(X, Theta, Y, R, lambda) {
 	# compute gradients of X and Theta: dJ/dX, dJ/dTheta
 	# modifies X, Theta if product has been rated by user
 	gradX = (R*(t(Theta %*% t(X)) - Y)) %*% Theta + lambda*X
-	gradTheta = t(R*(t(Theta %*% t(X)) - Y)) %*% X  + lambda*Theta;
+	gradTheta = t(R*(t(Theta %*% t(X)) - Y)) %*% X  + lambda*Theta
 	
 	return(list('J' = J, 'X_grad' = gradX, 'Theta_grad' = gradTheta))
 }
@@ -37,7 +37,7 @@ CFOptimizeCost <- function(theta, P1, P2, P3 , P4, P5, P6) {
 	offs = P5*P6
 	X = array(theta[1:offs], c(P5, P6))
 	Theta = array(theta[(offs+1):length(theta)], c(P4, P6))
-	result = CFCostFunction(X, Theta, P1, P2, P3);
+	result = CFCostFunction(X, Theta, P1, P2, P3)
 	
 	# unroll gradient matrices into one vector
 	grad = c(as.vector(result$X_grad), as.vector(result$Theta_grad))

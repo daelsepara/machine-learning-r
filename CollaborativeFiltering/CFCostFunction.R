@@ -19,8 +19,8 @@ CFCostFunction <- function(X, Theta, Y, R, lambda) {
 	
 	# compute gradients of X and Theta: dJ/dX, dJ/dTheta
 	# modifies X, Theta if product has been rated by user
-	gradX = (R*(t(Theta*t(X)) - Y)) %*% Theta + lambda*X
-	gradTheta = (R*t(t(Theta*t(X)) - Y)) %*% X  + lambda*Theta
+	gradX = (R*(t(Theta %*% t(X)) - Y)) %*% Theta + lambda*X
+	gradTheta = t(R*(t(Theta %*% t(X)) - Y)) %*% X  + lambda*Theta;
 	
 	return(list('J' = J, 'gradX' = gradX, 'gradTheta' = gradTheta))
 }

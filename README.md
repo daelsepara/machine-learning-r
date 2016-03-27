@@ -11,9 +11,9 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Support Vector Machines ##
 
-- training, prediction (svmTrain, svmPredict)
-- decision boundary visualization (plotData, visualizeBoundary)
-- linear and gaussian kernels (linearKernel, gaussianKernel)
+- training, prediction (svm_train, svm_predict)
+- decision boundary visualization (svm_plot, svm_boundary)
+- linear and gaussian kernels (linear_kernel, gaussian_kernel)
 
 ## Features ##
 

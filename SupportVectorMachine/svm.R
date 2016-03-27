@@ -1,7 +1,36 @@
-svmTrain <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
+gaussian_kernel <- function(x1, x2, sigma) {
+#GAUSSIANKERNEL returns a radial basis function kernel between x1 and x2
+#   sim = gaussian_kernel(x1, x2, sigma) returns a gaussian kernel between x1 and x2
+#   and returns the value in sim
+#
+# Converted to R by: SD Separa (2016/03/18)
+
+	# Ensure that x1 and x2 are column vectors
+	x1 = array(x1, c(length(x1), 1))
+	x2 = array(x2, c(length(x2), 1))
+
+	return(exp(-sum((x1 - x2)^2)/(2*sigma^2)))
+}
+
+linear_kernel <- function(x1, x2) {
+#LINEARKERNEL returns a linear kernel between x1 and x2
+#   sim = linear_kernel(x1, x2) returns a linear kernel between x1 and x2
+#   and returns the value in sim
+#
+# Converted to R by: SD Separa (2016/03/18)
+
+	# Ensure that x1 and x2 are column vectors
+	x1 = array(x1, c(length(x1), 1))
+	x2 = array(x2, c(length(x2), 1))
+
+	# Compute the kernel
+	return(t(x1) %*% x2)  # dot product
+}
+
+svm_train <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 #SVMTRAIN Trains an SVM classifier using a simplified version of the SMO 
 #algorithm. 
-#   [model] = SVMTRAIN(X, Y, C, kernelFunction, tol, max_passes) trains an
+#   [model] = svm_train(X, Y, C, kernelFunction, tol, max_passes) trains an
 #   SVM classifier and returns trained model. X is the matrix of training 
 #   examples.  Each row is a training example, and the jth column holds the 
 #   jth feature.  Y is a column matrix containing 1 for positive examples 
@@ -54,11 +83,11 @@ svmTrain <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 	# 
 	# We have implemented optimized vectorized version of the Kernels here so
 	# that the svm training will run faster.
-	if (strcmp(kernelFunc, 'linearKernel')) {
+	if (strcmp(kernelFunc, 'linear_kernel')) {
 		# Vectorized computation for the Linear Kernel
 		# This is equivalent to computing the kernel on every pair of examples
 		K = X %*% t(X)
-	} else if (strcmp(kernelFunc, 'gaussianKernel')) {
+	} else if (strcmp(kernelFunc, 'gaussian_kernel')) {
 		# Vectorized RBF Kernel
 		# This is equivalent to computing the kernel on every pair of examples
 		X2 = as.matrix(rowSums(X^2))
@@ -191,4 +220,111 @@ svmTrain <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 	model$w = t(t(alphas*Y)%*%X)
 
 	return(model)
+}
+
+svm_predict <- function(model, X) {
+#SVMPREDICT returns a vector of predictions using a trained SVM model
+#(svm_train). 
+#   pred = SVMPREDICT(model, X) returns a vector of predictions using a 
+#   trained SVM model (svm_train). X is a mxn matrix where there each 
+#   example is a row. model is a svm model returned from svm_train.
+#   predictions pred is a m x 1 column of predictions of {0, 1} values.
+#
+# Converted to R by: SD Separa (2016/03/18)
+
+	# for bsxfun and strcmp
+	require(pracma)
+	
+	# Check if we are getting a column vector, if so, then assume that we only
+	# need to do prediction for a single example
+	if (ncol(X) == 1) {
+		# Examples should be in rows
+		X = t(X)
+	}
+
+	# Dataset 
+	m = nrow(X)
+	p = array(0, c(m, 1))
+	pred = array(0, c(m, 1))
+
+	# [sdsepara] map model kernel function to an actual function
+	kernelFunction <- match.fun(model$kernelFunction)
+	
+	if (strcmp(model$kernelFunction,'linear_kernel')) {
+		# We can use the weights and bias directly if working with the 
+		# linear kernel
+		p = X %*% model$w + model$b
+	} else if (strcmp(model$kernelFunction, 'gaussian_kernel')) {
+		# Vectorized RBF Kernel
+		# This is equivalent to computing the kernel on every pair of examples
+		X1 = as.matrix(rowSums(X^2))
+		X2 = t(as.matrix(rowSums(model$X^2)))
+		rows = nrow(X1)
+		K = bsxfun('+', repmat(X1, 1, ncol(X2)), bsxfun('+', repmat(X2, rows, 1), -2*X%*%t(model$X)))
+		K = kernelFunction(1, 0, model$kernelParam)^K
+		K = bsxfun('*', repmat(t(model$y), rows, 1), K)
+		K = bsxfun('*', repmat(t(model$alphas), rows, 1), K)
+		p = rowSums(K)
+	} else {
+		# Other Non-linear kernel
+		for (i in 1:m) {
+			prediction = 0
+			for (j in 1:nrow(model$X)) {
+				prediction = prediction + model$alphas[j] * model$y[j] * kernelFunction(t(X[i,]), t(model$X[j,]), model$kernelParam)
+			}
+			p[i] = prediction + model$b
+		}
+	}
+
+	# Convert predictions into 0 / 1
+	pred[p >= 0] =  1
+	pred[p <  0] =  0
+	
+	return(pred)
+}
+
+svm_boundary <- function(X, y, model) {
+#SVMBOUNDARY plots a non-linear decision boundary learned by the SVM
+#   svm_boundary(X, y, model) plots a non-linear decision 
+#   boundary learned by the SVM and overlays the data on it
+#
+# Converted to R by: SD Separa (2016/03/18)
+
+	# Plot the training data on top of the boundary
+	svm_plot(X, y)
+
+	# Make classification predictions over a grid of values
+	x1plot = t(seq(min(X[,1]), max(X[,1]),length=100))
+	x2plot = t(seq(min(X[,2]), max(X[,2]),length=100))
+
+	xgrid = meshgrid(x1plot, x2plot)
+	X1 = xgrid$X
+	X2 = xgrid$Y
+
+	vals = array(0, dim(X1))
+
+	for (i in 1:ncol(X1)) {
+	   this_X = cbind(X1[,i], X2[,i])
+	   vals[, i] = svm_predict(model, this_X)
+	}
+
+	contour(x = x1plot, y = x2plot, z = t(vals), col = 'green', add = TRUE, lw = 1)
+}
+
+svm_plot <- function(X, y) {
+#SVMPLOT Plots the data points X and y into a new figure 
+#   svm_plot(x,y) plots the data points with + for the positive examples
+#   and o for the negative examples. X is assumed to be a Mx2 matrix.
+#
+# Note: This was slightly modified such that it expects y = 1 or y = 0
+#
+# Converted to R by: SD Separa (2016/03/18)
+
+	# Find Indices of Positive and Negative Examples
+	pos = which(y == 1)
+	neg = which(y == 0)
+
+	# Plot Examples
+	plot(X[pos, 1], X[pos, 2], pch = 3, xlab = '', ylab = '', col = 'blue')
+	points(X[neg, 1], X[neg, 2], pch = 19, col = 'red')
 }

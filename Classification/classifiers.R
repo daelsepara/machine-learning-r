@@ -3,7 +3,7 @@ euclidean_classifier <- function(X, y) {
 #
 # Inputs:
 #   X[m, n]	data to be classified [m data, n features]
-#   y[n, k] class feature vectors [n features (mean), k classes]
+#   y[n, k]	class feature vectors [n features (mean), k classes]
 #
 # Outputs:
 #      z[m]	classification of m-samples (labels) 

@@ -1,5 +1,5 @@
 euclidean_classifier <- function(X, y) {
-# Euclidean classifier for the case of c classes.
+# Euclidean classifier
 #
 # Inputs:
 #   X[m, n]	data to be classified [m data, n features]
@@ -8,6 +8,9 @@ euclidean_classifier <- function(X, y) {
 # Outputs:
 #      z[m]	classification of m-samples (labels) 
 
+	# for repmat
+	require(pracma)
+	
 	n = nrow(y)
 	k = ncol(y)
 	m = nrow(X)

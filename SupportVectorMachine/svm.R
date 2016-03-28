@@ -290,6 +290,9 @@ svm_boundary <- function(X, y, model) {
 #
 # Converted to R by: SD Separa (2016/03/18)
 
+	# for meshgrid
+	require(pracma)
+	
 	# Plot the training data on top of the boundary
 	svm_plot(X, y)
 

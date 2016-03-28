@@ -1,4 +1,4 @@
-fmincg<-function(f, X, options_ = 100, P1, P2, P3, P4, P5, P6) {
+fmincg<-function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NULL, P5 = NULL, P6 = NULL) {
 # Minimize a continuous differentialble multivariate function. Starting point
 # is given by "X" (D by 1), and the function named in the string "f", must
 # return a function value and a vector of partial derivatives. The Polack-

@@ -1,5 +1,6 @@
 lr_cost_op <- function(Xp, y, theta) {
-# Computes X*theta - y
+# Computes X*theta - y, an intermediate result used in computing
+# for the cost function and the gradient
 #
 # Inputs:
 #   Xp[m, n] training set
@@ -7,7 +8,7 @@ lr_cost_op <- function(Xp, y, theta) {
 #   theta[n] model parameters
 #  
 # Outputs:
-# 	J linear regression cost function
+# 	X*theta-y
 
 	result = t(t(theta) %*% t(Xp)) - y
 	
@@ -24,7 +25,7 @@ lr_cost <- function(X, y, theta) {
 #  
 # Outputs:
 # 	J			linear regression cost function
-#  grad			gradient
+#  gradient		gradient of cost function with respect to theta
 
 	# number of training examples
 	m = nrow(y)
@@ -45,7 +46,8 @@ lr_cost <- function(X, y, theta) {
 
 lr_gradientdescent <- function(X, y, theta, alpha, num_iters) {
 # Performs gradient descent to optimize theta
-# Runs gradient descent for num_iters steps with using learning rate alpha
+# Runs gradient descent algorithm for num_iters steps with using learning
+# rate alpha
 #
 # Inputs:
 #   X[m, n] 	training set

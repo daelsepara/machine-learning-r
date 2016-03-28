@@ -30,8 +30,14 @@ lr_cost <- function(X, y, theta) {
 	# number of training examples
 	m = nrow(y)
 
+	if (is.null(nrow(theta))) {
+		n = length(theta)
+	} else {
+		n = nrow(theta)
+	}
+	
 	# add a bias column
-	if (ncol(X) != length(theta)) {
+	if (ncol(X) != n) {
 		Xp = cbind(array(1, c(m, 1)), X)
 	} else {
 		Xp = X
@@ -111,8 +117,14 @@ logr_cost <- function(X, y, theta, lambda = 0) {
 
 	m = nrow(y)
 
+	if (is.null(nrow(theta))) {
+		n = length(theta)
+	} else {
+		n = nrow(theta)
+	}
+	
 	# add a bias column
-	if (ncol(X) != length(theta)) {
+	if (ncol(X) != n) {
 		Xp = cbind(array(1, c(m, 1)), X)
 	} else {
 		Xp = X

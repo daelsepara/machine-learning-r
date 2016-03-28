@@ -3,12 +3,12 @@ lr_cost_op <- function(Xp, y, theta) {
 # for the cost function and the gradient
 #
 # Inputs:
-#   Xp[m, n] training set
-#   y[m] true values for X
-#   theta[n] model parameters
+#  Xp[m, n]	training set
+#      y[m]	true values for X
+#  theta[n] model parameters
 #  
 # Outputs:
-# 	X*theta-y
+#   Computed X*theta-y
 
 	result = Xp %*% theta - y
 	
@@ -19,13 +19,13 @@ lr_cost <- function(X, y, theta) {
 # Compute cost and gradient for linear regression with multiple variables
 #
 # Inputs:
-#   X[m, n-1]	training set
-#   y[m] 		true values for X
-#   theta[n] 	model parameters
+# X[m, n-1]	training set
+#      y[m]	true values for X
+#  theta[n]	model parameters
 #  
 # Outputs:
-# 	J			linear regression cost function
-#  gradient		gradient of cost function with respect to theta
+#        J	linear regression cost function
+# gradient	gradient of cost function with respect to theta
 
 	# number of training examples
 	m = nrow(y)
@@ -49,29 +49,26 @@ lr_cost <- function(X, y, theta) {
 }
 
 lr_gradientdescent <- function(X, y, theta, alpha, num_iters) {
-# Performs gradient descent to optimize theta
-# Runs gradient descent algorithm for num_iters steps with using learning
-# rate alpha
+# Performs gradient descent to optimize theta. Runs gradient descent 
+# algorithm for num_iters steps with using learning rate alpha
 #
 # Inputs:
-#   X[m, n] 	training set
-#   y[m] 		true values for X
-#   theta[n] 	model parameters
-#	alpha		learning rate
-#	num_iters	maximum number of iterations
+#   X[m, n]	training set
+#      y[m]	true values for X
+#  theta[n]	model parameters
+#     alpha	learning rate
+# num_iters	maximum number of iterations
 #  
 # Outputs:
-#	theta		optimum theta
-# 	J 			cost function history
+#     theta	optimum theta
+#         J	cost function history
 
 	m = nrow(X)
-	
 	J = array(0, c(num_iters, 1))
 	
 	theta_optimum = theta
 	
 	for (i in 1:num_iters) {
-	
 		# compute cost and gradient
 		result = lr_cost(X, y, theta_optimum)
 
@@ -89,10 +86,10 @@ sigmoid <- function(z) {
 # Compute sigmoid function for z (scalar, vector, matrix)
 #
 # Inputs:
-#   z		(scalar, vector, matrix)
+#      z	(scalar, vector, matrix)
 #
 # Outputs:
-#	h(z)	sigmoid function of z
+#   h(z)	sigmoid function of z
 
 	h = 1/(1 + exp(-z))
 	
@@ -103,16 +100,15 @@ logr_cost <- function(X, y, theta, lambda = 0) {
 # Compute cost and gradient for logistic regression with regularization parameter lambda
 #
 # Inputs:
-#   X[m, n-1]	training set
-#   y[m] 		true values for X
+#  X[m, n-1]	training set
+#       y[m]	true values for X
 #   theta[n] 	model parameters
-#   lambda 		regularization paramter
+#     lambda	regularization paramter
 #  
 # Outputs:
-# 	J			linear regression cost function
-#  gradient		gradient of cost function with respect to theta
+#          J	linear regression cost function
+#   gradient	gradient of cost function with respect to theta
 
-	# number of training examples
 	m = nrow(y)
 
 	# add a bias column
@@ -121,19 +117,16 @@ logr_cost <- function(X, y, theta, lambda = 0) {
 	} else {
 		Xp = X
 	}
-	print('logr_cost')
 	
-	# do not regularize theta0
+	# do not regularize theta[1]
 	reg_theta = theta
 	reg_theta[1] = 0
 	
-	# compute sigmoid values
+	# compute sigmoid factors
 	h = sigmoid(Xp %*% theta)
 
-	print(h)
-		
 	# compute cost function
-	J = sum(-y * log(h) - (1 - y) * log(1 - h)) / m  + lambda*sum(reg_theta^2)/(2 * m)
+	J = sum(-y * log(h) - (1 - y) * log(1 - h)) / m  + lambda * sum(reg_theta ^ 2)/(2 * m)
 	
 	# compute gradient
 	gradient = (t(Xp) %*% (h - y) + lambda * reg_theta) / m
@@ -141,22 +134,23 @@ logr_cost <- function(X, y, theta, lambda = 0) {
 	return(list('J' = J, 'gradient' = gradient))
 }
 
-logr_gradientdescent <- function(X, y, theta, lambda, num_iters, method = 'Nelder-Mead') {
-# Performs gradient descent to optimize theta in logistic regression
-# Runs gradient descent algorithm for num_iters steps with using regularization
-# parameter lambda
+logr_optimize <- function(X, y, theta, lambda, num_iters, method = 'Nelder-Mead') {
+# Compute optimum model parameters using R's optimizer using regularized
+# logistic regression cost function
 #
 # Inputs:
-#   X[m, n] 	training set
-#   y[m] 		true values for X	
-#	lambda		regularization parameter
-#	num_iters	maximum number of iterations
-#  
-# Outputs:
-#	theta		optimum theta
+#    X[m, n]	training set
+#       y[m]	true values for X	
+#     lambda	regularization parameter
+#  num_iters	maximum number of iterations
+#     method	Optimization method to use: 'Nelder-Mead', 'BFGS', 'CG', 'L-BFGS-B', 'SANN', 'Brent'
 #
-# Note: Uses R's optimizer
+# Outputs:
+#	   theta	optimum theta
+#
+# See: ?optim
 
+	# optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
 	theta_optimum = optim(par = theta, fn = function(theta) { return(logr_cost(X, y, theta, lambda)$J) }, gr = function(theta) { return(logr_cost(X, y, theta, lambda)$gradient) }, control = list('maxit' = num_iters), method = method)$par
 	
 	return(theta_optimum)
@@ -203,6 +197,11 @@ mapFeature <- function(x1, x2, degree = 6) {
 
 regression_boundary <- function(X, y, theta) {
 # Plots decision boundary learned by logistic regression
+#
+# Inputs:
+#   X[m, n]	training set
+#      y[m]	true values for X
+#  theta[n]	model parameters
 
 	# Plot the data
 	regression_plot(X[,2:3], y)
@@ -237,6 +236,11 @@ regression_plot <- function(X, y) {
 #   regression_plot(x,y) plots the data points with + for the positive examples
 #   and o for the negative examples. X is assumed to be a mx2 matrix.
 # 
+#
+# Inputs:
+#   X[m, n]	training set
+#      y[m]	true values for X
+
 	# Find Indices of Positive and Negative Examples
 	pos = which(y == 1)
 	neg = which(y == 0)

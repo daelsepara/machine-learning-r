@@ -10,7 +10,7 @@ lr_cost_op <- function(Xp, y, theta) {
 # Outputs:
 # 	X*theta-y
 
-	result = t(t(theta) %*% t(Xp)) - y
+	result = Xp %*% theta - y
 	
 	return(result)
 }

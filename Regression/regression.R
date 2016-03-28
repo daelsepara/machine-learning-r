@@ -5,7 +5,7 @@ lr_cost_op <- function(Xp, y, theta) {
 # Inputs:
 #  Xp[m, n]	training set
 #      y[m]	true values for X
-#  theta[n] model parameters
+#  theta[n]	model parameters
 #  
 # Outputs:
 #   Computed X*theta-y

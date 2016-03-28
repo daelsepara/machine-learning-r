@@ -27,13 +27,11 @@ lr_cost <- function(X, y, theta) {
 #        J	linear regression cost function
 # gradient	gradient of cost function with respect to theta
 
-	# number of training examples
 	m = nrow(y)
-
-	if (is.null(nrow(theta))) {
+	n = nrow(theta)
+	
+	if (is.null(n)) {
 		n = length(theta)
-	} else {
-		n = nrow(theta)
 	}
 	
 	# add a bias column
@@ -116,11 +114,10 @@ logr_cost <- function(X, y, theta, lambda = 0) {
 #   gradient	gradient of cost function with respect to theta
 
 	m = nrow(y)
-
-	if (is.null(nrow(theta))) {
+	n = nrow(theta)
+	
+	if (is.null(n)) {
 		n = length(theta)
-	} else {
-		n = nrow(theta)
 	}
 	
 	# add a bias column

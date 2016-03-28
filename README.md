@@ -4,7 +4,8 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Classification ##
 
-- Euclidean classifier (euclidean_classifier)
+- Euclidean (euclidean_classifier)
+- Mahalanobis (mahalanobis_classifier)
 
 ## Regression ##
 

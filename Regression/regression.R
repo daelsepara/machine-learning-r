@@ -160,7 +160,13 @@ logr_optimize <- function(X, y, theta, lambda, num_iters, method = 'L-BFGS-B') {
 # See: ?optim
 
 	# optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
-	theta_optimum = optim(par = theta, fn = function(theta) { return(logr_cost(X, y, theta, lambda)$J) }, gr = function(theta) { return(logr_cost(X, y, theta, lambda)$gradient) }, control = list('maxit' = num_iters), method = method)$par
+	result = optim(par = theta, fn = function(theta) { return(logr_cost(X, y, theta, lambda)$J) }, gr = function(theta) { return(logr_cost(X, y, theta, lambda)$gradient) }, control = list('maxit' = num_iters), method = method)
+	
+	cat('\nResults:\n')
+	cat(paste('J =', result$value, '\n'))
+	cat(paste('iterations =', result$counts[1], '\n'))
+	
+	theta_optimum = result$par
 	
 	return(theta_optimum)
 }

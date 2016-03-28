@@ -2,6 +2,13 @@
 
 This is a repository for R scripts developed during my machine learning studies. Some of the codes have been adapted and converted into R from their original Matlab implementations. 
 
+## Regression ##
+
+### Linear regression ###
+
+- Linear regression cost function and gradient (lr_cost)
+- Linear regression gradient descent (lr_gradientdescent)
+
 ## Neural Network ##
 
 - sigmoid activation

@@ -2,6 +2,10 @@
 
 This is a repository for R scripts developed during my machine learning studies. Some of the codes have been adapted and converted into R from their original Matlab implementations. 
 
+## Classification ##
+
+- Euclidean classifier (euclidean_classifier)
+
 ## Regression ##
 
 - plot data and decision boundary (regression_plot, regression_boundary)

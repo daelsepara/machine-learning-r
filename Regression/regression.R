@@ -146,7 +146,7 @@ logr_cost <- function(X, y, theta, lambda = 0) {
 	return(list('J' = J, 'gradient' = gradient))
 }
 
-logr_optimize <- function(X, y, theta, lambda, num_iters, method = 'Nelder-Mead') {
+logr_optimize <- function(X, y, theta, lambda, num_iters, method = 'L-BFGS-B') {
 # Compute optimum model parameters using R's optimizer using regularized
 # logistic regression cost function
 #

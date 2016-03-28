@@ -4,10 +4,17 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Regression ##
 
+- plot data and decision boundary (regression_plot, regression_boundary)
+
 ### Linear regression ###
 
 - Linear regression cost function and gradient (lr_cost)
 - Linear regression gradient descent (lr_gradientdescent)
+
+### Logistic regression ###
+
+- Logistic regression cost function and gradient (logr_cost)
+- Logistic regression optimizer (logr_optimize)
 
 ## Neural Network ##
 

@@ -72,7 +72,7 @@ perceptron_classifier <- function(X, y, w_init = array(1, c(ncol(X), 1)), alpha 
 #
 # Inputs:
 #   X[m, n]	data to be classified [m samples, n features]
-#   y[m]	class labels of X
+#      y[m]	class labels of X
 # w_init[n]	initial estimate of the parameter vector
 #     alpha	learning rate
 #
@@ -124,7 +124,7 @@ online_perceptron_classifier <- function(X, y, w_init = array(1, c(ncol(X), 1)),
 #
 # Inputs:
 #   X[m, n]	data to be classified [m samples, n features]
-#   y[m]	class labels of X
+#      y[m]	class labels of X
 # w_init[n]	initial estimate of the parameter vector
 #     alpha	learning rate
 #
@@ -168,4 +168,27 @@ online_perceptron_classifier <- function(X, y, w_init = array(1, c(ncol(X), 1)),
 	z[which(p >= 0)] = 1
 	
 	return(list('z' = z, 'w_final' = w_final, 'mc' = mc, 'iter' = iter))
+}
+
+sse_classifier <- function(X, y, C) {
+# Sum-squared error classifier
+#
+# Inputs:
+#   X[m, n]	data to be classified [m samples, n features]
+#      y[m]	class labels of X
+#         C	small positive constant that guarantees the
+#           inversion of X' %*% X, when it is near singular
+#
+# Outputs:
+#w_final[n]	final estimate of the parameter vector
+#      z[m] predicted classes
+
+	w_final = solve(t(X) %*% X + C*diag(ncol(X))) %*% (t(X) %*% y)
+
+	z = array(0, dim(y))
+	p = X %*% w_final
+	z[which(p < 0)] = -1
+	z[which(p >= 0)] = 1
+	
+	return(list('z' = z, 'w_final' = w_final))
 }

@@ -8,6 +8,7 @@ This is a repository for R scripts developed during my machine learning studies.
 - Mahalanobis (mahalanobis_classifier)
 - Perceptron (perceptron_classifier)
 - Online Perceptron (online_perceptron_classifier)
+- Sum-Squared Error (sse_classifier)
 
 ## Regression ##
 
@@ -35,6 +36,7 @@ This is a repository for R scripts developed during my machine learning studies.
 - training, prediction (svm_train, svm_predict)
 - decision boundary visualization (svm_plot, svm_boundary)
 - linear and gaussian kernels (linear_kernel, gaussian_kernel)
+- Sequential Minimal Optimization using various kernel functions (smo2, CalcKernel) *this port still needs extensive testing*
 
 ## Features ##
 

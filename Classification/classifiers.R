@@ -67,7 +67,7 @@ mahalanobis_classifier <- function(X, y, S) {
 	return(z)
 }
 
-perceptron_classifier <- function(X, y, w_init = array(0, c(ncol(X), 1)), alpha = 1, max_iter = 100000) {
+perceptron_classifier <- function(X, y, w_init = array(1, c(ncol(X), 1)), alpha = 1, max_iter = 100000) {
 # Perceptron classifier
 #
 # Inputs:
@@ -77,9 +77,10 @@ perceptron_classifier <- function(X, y, w_init = array(0, c(ncol(X), 1)), alpha 
 #     alpha	learning rate
 #
 # Outputs:
-#   w_final	final estimate of the parameter vector
+#w_final[n]	final estimate of the parameter vector
 #      iter	number of iterations ran until convergence
 #        mc	number of misclassified samples
+#      z[m] predicted classes
 
 	m = nrow(X)
 	n = ncol(X)
@@ -109,6 +110,11 @@ perceptron_classifier <- function(X, y, w_init = array(0, c(ncol(X), 1)), alpha 
 		# Update estimates of parameter vector
 		w_final = w_final - alpha * gradient
 	}
+
+	z = array(0, dim(y))
+	p = X %*% w_final
+	z[which(p < 0)] = -1
+	z[which(p >= 0)] = 1
 	
-	return(list('w_final' = w_final, 'mc' = mc, 'iter' = iter))
+	return(list('z' = z, 'w_final' = w_final, 'mc' = mc, 'iter' = iter))
 }

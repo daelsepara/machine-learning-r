@@ -116,7 +116,7 @@ smo2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps, method) {
 	for (i in 1:length(model)) assign(names(model)[i], model[[i]])
 				
 	if (method == 1 || method == 2) {
-		flag = (glob$b_up < glob$b_low - 2 * tol) || (stp >= steps)
+		flag = (glob$b_up < glob$b_low - 2 * tol) | (stp >= steps)
 	} else {
 		flag = (stp >= steps)
 	}
@@ -348,7 +348,7 @@ takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 		evals = evals + n
 		E1 = -y1 + (t(ki1) %*% (Y * alpha)) - b
 		glob$ecache[i1] = E1
-		glob$ecache_f[i] = 1
+		glob$ecache_f[i1] = 1
 	} else {
 		E1 = glob$ecache[i1]
 	}

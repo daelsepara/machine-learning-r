@@ -357,7 +357,7 @@ takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 	if (glob$ecache_f[i2] == 0) {
 		ki2 = as.vector(K[, i2])
 		evals = evals + n
-		E2 = -y1 + (t(ki2) * (Y * alpha)) - b
+		E2 = -y1 + (t(ki2) %*% (Y * alpha)) - b
 		glob$ecache[i2] = E2
 		glob$ecache_f[i2] = 1
 	} else {

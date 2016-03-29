@@ -57,10 +57,10 @@ mahalanobis_classifier <- function(X, y, S) {
 		# replicate i-th column of X into into k-columns
 		d = repmat(array(X[i, ], c(n, 1)), 1, k) - y
 		
-		# compute Euclidean distance to each class and discard off-diagonals
+		# compute Mahalanobis distance to each class and discard off-diagonals
 		d_e = sqrt(diag(t(d) %*% solve(S) %*% d))
 		
-		# classify according to minimum Euclidean distance
+		# classify according to minimum Mahalanobis distance
 		z[i] = as.integer(which.min(d_e))
 	}
 	

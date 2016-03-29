@@ -125,7 +125,10 @@ smo2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps, method) {
 		cat('The algorithm has not converged. This may be due to:\n (a) the maximum number of iterations has been reached and convergence has not, yet, been achieved or \n (b) the chosen values for the hyperparameters (C as well as the parameters that define the kernel function) \n can not lead to a solution. \n')
 	}
 	
-	return(model)
+	# unpack result into objects
+	for (i in 1:length(model)) assign(names(model)[i], model[[i]])
+	
+	return(list('alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
 }
 
 SMO_Platt <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
@@ -179,7 +182,7 @@ SMO_Platt <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 			}
 		} else {
 			
-			glob$I_0 = which(alpha > 0 & alpha < C)
+			glob$I_0 = which(alpha > 0 && alpha < C)
 			k = length(glob$I_0)
 			
 			for (i in 1:k) {
@@ -442,7 +445,7 @@ takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 	glob$ecache[i2] = E2 + b_old - b + (y1 * (a1 - alph1) * k12) + (y2 * (a2 - alph2) * k22)
 	glob$ecache_f[i2] = 1
 	# Update I_0
-	glob$I_0 = which(alpha > 0 & alpha < C)
+	glob$I_0 = which(alpha > 0 && alpha < C)
 
 	retval = 1
 	
@@ -489,7 +492,7 @@ SMO_Keerthi_modif1 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 	glob$fcache[glob$i_up] = -1
 
 	# Initialize the I_* sets
-	glob$I_0 = which(alpha > 0 & alpha < C)
+	glob$I_0 = which(alpha > 0 && alpha < C)
 	glob$I_1 = which(alpha[glob$v_1] == 0)
 	glob$I_1 = glob$v_1[glob$I_1]
 	glob$I_2 = which(alpha[glob$v_2] == C)
@@ -581,6 +584,8 @@ SMO_Keerthi_modif2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 	evals = 0
 	# --------------------------------------------------------------------------
 
+	K = array(0, c(n, n))
+	
 	for (i in 1:n) {
 		K[, i]= CalcKernel(X, X[i, ], krnel, kpar1, kpar2)
 	}
@@ -604,11 +609,11 @@ SMO_Keerthi_modif2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 	glob$fcache[glob$i_up] = -1
 
 	# Initialize the I_* sets
-	glob$I_0 = which(alpha > 0 & alpha < C)
-	glob$I_1 = which(alpha(glob$v_1) == 0)
+	glob$I_0 = which(alpha > 0 && alpha < C)
+	glob$I_1 = which(alpha[glob$v_1] == 0)
 	glob$I_1 = glob$v_1[glob$I_1]
 	glob$I_2 = which(alpha[glob$v_2] == C)
-	glob$I_2 = glob$v_2(glob$I_2)
+	glob$I_2 = glob$v_2[glob$I_2]
 	glob$I_3 = which(alpha[glob$v_1] == C)
 	glob$I_3 = glob$v_1[glob$I_3]
 	glob$I_4 = which(alpha[glob$v_2] == 0)
@@ -813,7 +818,7 @@ takeStepK <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 	# target[i] gives information as to which index set i belongs.
 	# Update I_0, I_1, I_2, I_3, I_4
 	#--------------------------------------------------------------------------
-	glob$I_0 = which(alpha > 0 & alpha < C)
+	glob$I_0 = which(alpha > 0 && alpha < C)
 	glob$I_1 = which(alpha[glob$v_1] == 0)
 	glob$I_1 = glob$v_1[glob$I_1]
 	glob$I_2 = which(alpha[glob$v_2] == C)

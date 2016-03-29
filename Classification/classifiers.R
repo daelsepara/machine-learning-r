@@ -100,7 +100,7 @@ perceptron_classifier <- function(X, y, w_init = array(0, c(ncol(X), 1)), alpha 
 		mc = length(idx)
 		
 		# compute gradient
-		gradient = alpha *  t(-y[idx] %*% X1[idx, ])
+		gradient = alpha *  t(-y[idx] %*% X[idx, ])
 		
 		if (iter == 1) {
 			cat(paste('\n First Iteration: # Misclassified points = ', mc, '\n'))       

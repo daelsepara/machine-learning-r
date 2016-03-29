@@ -2,7 +2,7 @@ euclidean_classifier <- function(X, y) {
 # Euclidean classifier
 #
 # Inputs:
-#   X[m, n]	data to be classified [m data, n features]
+#   X[m, n]	data to be classified [m samples, n features]
 #   y[n, k]	class feature vectors [n features (mean), k classes]
 #
 # Outputs:
@@ -36,7 +36,7 @@ mahalanobis_classifier <- function(X, y, S) {
 # Mahalanobis classifier
 #
 # Inputs:
-#   X[m, n]	data to be classified [m data, n features]
+#   X[m, n]	data to be classified [m samples, n features]
 #   y[n, k]	class feature vectors [n features (mean), k classes]
 #   S[n, n]	covariance matrix of n-features
 #
@@ -65,4 +65,50 @@ mahalanobis_classifier <- function(X, y, S) {
 	}
 	
 	return(z)
+}
+
+perceptron_classifier <- function(X, y, w_init = array(0, c(ncol(X), 1)), alpha = 1, max_iter = 100000) {
+# Perceptron classifier
+#
+# Inputs:
+#   X[m, n]	data to be classified [m samples, n features]
+#   y[m]	class labels of X
+# w_init[n]	initial estimate of the parameter vector
+#     alpha	learning rate
+#
+# Outputs:
+#   w_final	final estimate of the parameter vector
+#      iter	number of iterations ran until convergence
+#        mc	number of misclassified samples
+
+	m = nrow(X)
+	n = ncol(X)
+	
+	iter = 0
+	w_final = w_init
+	mc = m
+	
+	while (mc > 0 && iter < max_iter) {
+    
+		iter = iter + 1
+
+		# vectorized implementation of perceptron algorithm
+		cost = (X %*% w_final) * y
+		idx = which(cost < 0)
+		
+		# count misclassified samples
+		mc = length(idx)
+		
+		# compute gradient
+		gradient = alpha *  t(-y[idx] %*% X1[idx, ])
+		
+		if (iter == 1) {
+			cat(paste('\n First Iteration: # Misclassified points = ', mc, '\n'))       
+		}
+		
+		# Update estimates of parameter vector
+		w_final = w_final - alpha * gradient
+	}
+	
+	return(list('w_final' = w_final, 'mc' = mc, 'iter' = iter))
 }

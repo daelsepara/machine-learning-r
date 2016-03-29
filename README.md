@@ -7,6 +7,7 @@ This is a repository for R scripts developed during my machine learning studies.
 - Euclidean (euclidean_classifier)
 - Mahalanobis (mahalanobis_classifier)
 - Perceptron (perceptron_classifier)
+- Online Perceptron (online_perceptron_classifier)
 
 ## Regression ##
 

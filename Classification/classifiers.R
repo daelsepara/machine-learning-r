@@ -118,3 +118,54 @@ perceptron_classifier <- function(X, y, w_init = array(1, c(ncol(X), 1)), alpha 
 	
 	return(list('z' = z, 'w_final' = w_final, 'mc' = mc, 'iter' = iter))
 }
+
+online_perceptron_classifier <- function(X, y, w_init = array(1, c(ncol(X), 1)), alpha = 1, max_iter = 100000) {
+# Online form of the perceptron classifier
+#
+# Inputs:
+#   X[m, n]	data to be classified [m samples, n features]
+#   y[m]	class labels of X
+# w_init[n]	initial estimate of the parameter vector
+#     alpha	learning rate
+#
+# Outputs:
+#w_final[n]	final estimate of the parameter vector
+#      iter	number of iterations ran until convergence
+#        mc	number of misclassified samples
+#      z[m] predicted classes
+
+	m = nrow(X)
+	n = ncol(X)
+	
+	iter = 0
+	w_final = w_init
+	mc = m
+	
+	while (mc > 0 && iter < max_iter) {
+		
+		mc = 0
+		
+		for (i in 1:m) {
+		
+			if ((X[i, ] %*% w_final) * y[i] < 0) {
+				# count misclassified samples
+				mc = mc + 1
+				# update estimates of parameter vector
+				w_final = w_final + alpha * y[i] * X[i, ]
+			}
+			
+			iter = iter + 1
+		}
+		
+		if (iter == m) {
+			cat(paste('\n First Iteration: # Misclassified points = ', mc, '\n'))       
+		}
+	}
+
+	z = array(0, dim(y))
+	p = X %*% w_final
+	z[which(p < 0)] = -1
+	z[which(p >= 0)] = 1
+	
+	return(list('z' = z, 'w_final' = w_final, 'mc' = mc, 'iter' = iter))
+}

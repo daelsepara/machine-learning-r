@@ -153,7 +153,7 @@ SMO_Platt <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 	glob = list('ecache' = numeric(0), 'v_1' = numeric(0), 'v_2' = numeric(0), 'I_0' = numeric(0) ,'ecache_f' = numeric(0))
 	
 	## initialize fcache array to all zero and its size to n
-	glob$ecache = array(n,1)
+	glob$ecache = array(0, c(n,1))
 	glob$ecache_f = array(0, c(n,1)) # 0 -> ecache value not-OK, 1 -> value OK
 	glob$v_1 = which(Y == -1)
 	glob$v_2 = which(Y ==1)
@@ -174,7 +174,7 @@ SMO_Platt <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 					break
 				}
 
-				result = examineExampleP(i, glob, alpha, w, b, X, Y, krnl, kpar1, kpar2, C, tol, steps, stp, evals, eps, K)
+				result = examineExampleP(i, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K)
 				# unpack result into objects
 				for (i in 1:length(result)) assign(names(result)[i], result[[i]])
 				
@@ -269,7 +269,7 @@ examineExampleP <- function(i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C,
 		# loop over all non-zero and non-C alpha, starting at a random point
 		k = length(glob$I_0)
 		set.seed(2)
-		r = floor(k * rand)
+		r = as.integer(floor(k * rand()))
 		
 		for (i in 1:k) {
 			i1 = mod(r + i, k) + 1
@@ -287,14 +287,14 @@ examineExampleP <- function(i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C,
 		
 		# loop over all possible i1, starting at a random point
 		k = n
-		r = floor(k * rand)
+		r = as.integer(floor(k * rand()))
 		
 		for (i in 1:k) {
 		
 			i1 = mod(r + i, k) + 1
 			stp = stp + 1
 			
-			result = takeStepP(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps,K);
+			result = takeStepP(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps,K)
 			
 			# unpack result into objects
 			for (i in 1:length(result)) assign(names(result)[i], result[[i]])
@@ -308,7 +308,7 @@ examineExampleP <- function(i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C,
 	return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
 }
 
-takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps,K) {
+takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps, K) {
 # returns [retval, alpha, w, b, evals, glob]
 
 	# for strcmpi
@@ -319,7 +319,7 @@ takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 
 	if (i1 == i2) {
 		retval = 0
-		return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
+		return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'evals' = evals, 'glob' = glob))
 	}
 
 	alph1 = alpha[i1]
@@ -339,14 +339,14 @@ takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 	
 	if (L == H) {
 		retval = 0
-		return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
+		return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'evals' = evals, 'glob' = glob))
 	}
 	
 	# calculate E1 = SVM output in X[i1] - y1 (check in error cache)
 	if (glob$ecache_f[i1] == 0) {
-		ki1 = K[, i1]
+		ki1 = as.vector(K[, i1])
 		evals = evals + n
-		E1 = -y1 + (t(ki1) * (Y * alpha)) - b
+		E1 = -y1 + (t(ki1) %*% (Y * alpha)) - b
 		glob$ecache[i1] = E1
 		glob$ecache_f[i] = 1
 	} else {
@@ -355,8 +355,8 @@ takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 	
 	# calculate E2 = SVM output in X[i2] - y2 (check in error cache)
 	if (glob$ecache_f[i2] == 0) {
-		ki2 = K[, i2]
-		evals = evals + n;
+		ki2 = as.vector(K[, i2])
+		evals = evals + n
 		E2 = -y1 + (t(ki2) * (Y * alpha)) - b
 		glob$ecache[i2] = E2
 		glob$ecache_f[i2] = 1
@@ -400,7 +400,7 @@ takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 	
 	if (abs(a2 - alph2) < (eps * (a2 + alph2 + eps))) {
 		retval = 0
-		return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
+		return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'evals' = evals, 'glob' = glob))
 	}
 	
 	# computation on new a1pha1(a1)
@@ -427,9 +427,9 @@ takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 	v = which(glob$ecache_f == 1)
 	
 	for (i in 1:length(v)) {
-		ki1 = K(v(i),i1);
-		ki2 = K(v(i),i2);
-		evals = evals + 2;
+		ki1 = K[v[i], i1]
+		ki2 = K[v[i], i2]
+		evals = evals + 2
 		glob$ecache[v[i]] = glob$ecache[v[i]] + b_old - b + (y1 * (a1 - alph1) * ki1) + (y2 * (a2 - alph2) * ki2)
 	}
 	
@@ -449,7 +449,7 @@ takeStepP <- function(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, t
 
 	retval = 1
 	
-	return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
+	return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'evals' = evals, 'glob' = glob))
 }
 
 SMO_Keerthi_modif1 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
@@ -539,10 +539,10 @@ SMO_Keerthi_modif1 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 				
 				# glob$I_0 changes inside loop (in examineExampleK)
 				if (i > length(glob$I_0)) {
-					break; 
+					break 
 				}
 				 
-				result = examineExampleK(glob$I_0[i], glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps,K);
+				result = examineExampleK(glob$I_0[i], glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps,K)
 				
 				# unpack result into objects
 				for (i in 1:length(result)) assign(names(result)[i], result[[i]])
@@ -1169,7 +1169,7 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 		k = array(0, c(r1, 1))
 		
 		for (i in 1:r1) {
-			z = 0;
+			z = 0
 			for (r in 0:(2*(kpar1+1))) {
 				z = z + (-1) ^ r * choose(2 * (kpar1 + 1), r) * (bsxfun('max', array(0, length(v)), u[i, ] - v + kpar1 + 1 - r)) ^ (2 * kpar1 + 1)
 			}

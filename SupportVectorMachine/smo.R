@@ -1107,13 +1107,14 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 		
 		for (i in 1:r1) {
 			z = sin(kpar1 + 1 / 2)* 2 * array(1, c(length(u[i, ]),1))
-			j = which(u[i,] - v)
+			j = which(u[i,] - v != 0)
 			z[j] = sin(kpar1 + 1/2) * (u[i, j] - v[j])/sin((u[i, j] - v[j]) / 2)
 			k[i] = prod(z)
 		}
 	} else if (strcmp(ker, 'spline')) {
 	
 		k = array(0, c(r1, 1))
+		v = as.vector(v)
 		
 		for (i in 1:r1) {
 			z = 1 + u[i, ] * v + u[i, ] * v * bsxfun('min', u[i, ], v) - ((u[i, ] + v) / 2) * (bsxfun('min', u[i, ], v)) ^ 2 + (1 / 3) * (bsxfun('min', u[i, ], v)) ^ 3
@@ -1122,6 +1123,7 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 	}  else if (strcmp(ker, 'curvspline') || strcmp(ker, 'anova')) {
 			
 		k = array(0, c(r1, 1))
+		v = as.vector(v)
 		
 		for (i in 1:r1) {
 			z = 1 + u[i, ] * v + (1 / 2) * u[i, ] *v * bsxfun('min', u[i, ], v) - (1 / 6) * bsxfun('min', u[i, ], v) ^ 3
@@ -1131,11 +1133,12 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 	} else if (strcmp(ker, 'bspline')) {
 		
 		k = array(0, c(r1, 1))
+		v = as.vector(v)
 		
 		for (i in 1:r1) {
 			z = 0
 			for (r in 0:(2*(kpar1+1))) {
-				z = z + (-1) ^ r * choose(2*(kpar1+1), r) * (bsxfun('max', array(0, length(v)), u[i, ] - v + kpar1 + 1 - r)) ^ (2 * kpar1 + 1)
+				z = z + (-1) ^ r * choose(2*(kpar1+1), r) * (bsxfun('max', v, u[i, ] - v + kpar1 + 1 - r)) ^ (2 * kpar1 + 1)
 			}
 			
 			k[i] = prod(z)
@@ -1143,6 +1146,7 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 	} else if (strcmp(ker, 'anovaspline1')) {
 		
 		k = array(0, c(r1, 1))
+		v = as.vector(v)
 		
 		for (i in 1:r1) {
 			z = 1 + u[i, ] * v + u[i, ] * v * bsxfun('min', u[i, ], v) - ((u[i, ] + v) / 2) * bsxfun('min', u[i, ], v) ^ 2 + (1 / 3) * bsxfun('min', u[i, ], v) ^ 3
@@ -1151,6 +1155,7 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 	} else if (strcmp(ker, 'anovaspline2')) {
 		
 		k = array(0, c(r1, 1))
+		v = as.vector(v)
 		
 		for (i in 1:r1) {
 			z = 1 + u[i, ] * v + (u[i, ] * v)^2 + (u[i, ] * v) ^ 2 * bsxfun('min', u[i, ], v) - u[i, ] * v * (u[i, ]+ v) * bsxfun('min', u[i, ], v) ^ 2 + (1 / 3) * (u[i, ] ^ 2 + 4 * u[i, ] * v + v ^ 2) * bsxfun('min', u[i, ], v) ^3 - (1 / 2) * (u[i, ] + v) * bsxfun('min', u[i, ], v) ^ 4 + (1 / 5) * bsxfun('min', u[i, ], v) ^ 5
@@ -1159,6 +1164,7 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 	} else if (strcmp(ker, 'anovaspline3')) {
 		
 		k = array(0, c(r1, 1))
+		v = as.vector(v)
 		
 		for (i in 1:r1) {
 			z = 1 + u[i, ] * v + (u[i, ] * v) ^ 2 + (u[i, ] * v) ^ 3 + (u[i, ] * v) ^ 3 * bsxfun('min', u[i, ], v) - (3 / 2) * (u[i, ] * v) ^ 2 *(u[i, ] + v) * bsxfun('min', u[i, ], v) ^ 2 + u[i, ] * v * (u[i, ] ^ 2 + 3 * u[i, ] * v + v ^2) * bsxfun('min', u[i, ], v) ^ 3 - (1 / 4)*(u[i, ] ^ 3 + 9 * u[i, ] ^ 2  * v + 9 * u[i, ] * v ^ 2 + v ^ 3) * bsxfun('min', u[i, ], v) ^ 4 + (3 / 5) * (u[i, ] ^ 2 + 3 * u[i, ] * v + v ^ 2) * bsxfun('min', u[i, ], v) ^ 5 - (1/2) * (u[i, ] + v) * bsxfun('min', u[i, ], v) ^ 6 + (1 / 7) * bsxfun('min', u[i, ], v) ^ 7
@@ -1167,11 +1173,12 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 	} else if (strcmp(ker, 'anovabspline')) {
 
 		k = array(0, c(r1, 1))
+		v = as.vector(v)
 		
 		for (i in 1:r1) {
 			z = 0
 			for (r in 0:(2*(kpar1+1))) {
-				z = z + (-1) ^ r * choose(2 * (kpar1 + 1), r) * (bsxfun('max', array(0, length(v)), u[i, ] - v + kpar1 + 1 - r)) ^ (2 * kpar1 + 1)
+				z = z + (-1) ^ r * choose(2 * (kpar1 + 1), r) * (bsxfun('max', v, u[i, ] - v + kpar1 + 1 - r)) ^ (2 * kpar1 + 1)
 			}
 			k[i] = prod(z)
 		}

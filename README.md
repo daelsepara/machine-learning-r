@@ -36,7 +36,22 @@ This is a repository for R scripts developed during my machine learning studies.
 - training, prediction (svm_train, svm_predict)
 - decision boundary visualization (svm_plot, svm_boundary)
 - linear and gaussian kernels (linear_kernel, gaussian_kernel)
-- Sequential Minimal Optimization using various kernel functions (smo2, CalcKernel). **Note**: *this port still needs extensive testing*
+- sequential minimal optimization using various kernel functions (smo2, CalcKernel)
+
+### Supported Kernels in SMO ###
+
+- linear
+- polynomial (poly)
+- radial basis function (rbf)
+- extended radial basis function (erbf)
+- sigmoid
+- fourier
+- spline
+- curved spline, ANOVA (curvedspline, anova)
+- B-spline (bspline)
+- ANOVA spline 1,2,3 (anovaspline1, anovaspline2, anovaspline3)
+- ANOVA B-spline (anovabspline)
+
 
 ## Features ##
 

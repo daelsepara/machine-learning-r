@@ -209,15 +209,16 @@ svm_train <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 	cat(' Done!\n')
 
 	# Save the model
-	idx = alphas > 0
+	idx = which(alphas > 0)
 	model<-list()
 	model$X = X[idx,]
 	model$y = Y[idx]
 	model$kernelFunction = kernelFunc
 	model$kernelParam = kernelParam
-	model$b = b
-	model$alphas=alphas[idx]
+	model$b = as.double(b)
+	model$alphas = alphas[idx]
 	model$w = t(t(alphas*Y)%*%X)
+	model$passes = passes
 
 	return(model)
 }

@@ -116,7 +116,7 @@ smo2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps, method) {
 	for (i in 1:length(model)) assign(names(model)[i], model[[i]])
 				
 	if (method == 1 || method == 2) {
-		flag = (glob$b_up < glob$b_low - 2 * tol) | (stp >= steps)
+		flag = (glob$b_up < glob$b_low - 2 * tol) || (stp >= steps)
 	} else {
 		flag = (stp >= steps)
 	}
@@ -565,7 +565,7 @@ SMO_Keerthi_modif1 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 		}
 	}
 	
-	b = (glob$b_up + glob$b_low) / 2
+	b = as.double(glob$b_up + glob$b_low) / 2
 	
 	return(list('alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
 }
@@ -692,7 +692,7 @@ SMO_Keerthi_modif2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 		}
 	}
 	
-	b = (glob$b_up + glob$b_low) / 2
+	b = as.double(glob$b_up + glob$b_low) / 2
 	
 	return(list('alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
 }

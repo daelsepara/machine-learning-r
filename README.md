@@ -35,10 +35,10 @@ This is a repository for R scripts developed during my machine learning studies.
 
 - training, prediction (svm_train, svm_predict)
 - decision boundary visualization (svm_plot, svm_boundary)
-- linear and gaussian kernels (linear_kernel, gaussian_kernel)
+- linear, gaussian/rbf, polynomial kernels (linear_kernel, gaussian_kernel, polynomial_kernel)
 - sequential minimal optimization using various kernel functions (smo2, CalcKernel)
 
-### Supported Kernels in SMO ###
+### Supported Kernels in SMO (CalcKernel) ###
 
 - linear
 - polynomial (poly)

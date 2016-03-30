@@ -64,7 +64,7 @@ svm_train <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 	n = ncol(X)
 
 	# Map 0 to -1
-	Y[Y==0] = -1
+	Y[which(Y == 0)] = -1
 
 	# Variables
 	alphas = array(0, c(m, 1))

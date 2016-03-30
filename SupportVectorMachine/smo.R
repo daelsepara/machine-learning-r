@@ -1162,3 +1162,42 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 	
 	return(k)
 }
+
+test_smo <- function() {
+  
+  # number of features
+  l = 2
+  
+  # Number of samples
+  N = 150	
+  
+  # Generating the training set
+  set.seed(0)
+  
+  X1 = 10 * rand(N, l) - 5
+  y1 = array(y1, c(N, 1))
+  
+  for (i in 1:N) {
+    
+    tt = 0.05 * (X1[i, 1]^3 + X1[i, 1]^2 + X1[i, 1] + 1)
+    
+    if (tt > X1[i, 2]) {
+      y1[i] = 1
+    } else {
+      y1[i] = -1
+    }
+  }
+  
+  krnel = 'linear'
+  kpar1 = 0
+  kpar2 = 0
+  C = 2
+  tol = 0.001
+  steps = 100000
+  eps = 10 ^ (-10)
+  method = 1
+  
+  result = smo2(X = X1, Y = y1, krnel = krnel, kpar1 = kpar1, kpar2 = kpar2, C = C, tol = tol, steps = steps, eps = eps, method = method)
+  
+  return(result)
+}

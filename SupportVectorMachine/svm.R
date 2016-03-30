@@ -1,3 +1,13 @@
+polynomial_kernel <- function(x1, x2, kernelParam = c(0, 1)) {
+  #POLYNOMIAL KERNEL 
+  
+  # Ensure that x1 and x2 are column vectors
+  x1 = array(x1, c(length(x1), 1))
+  x2 = array(x2, c(length(x2), 1))
+
+  return(((t(x1) %*% x2 + kernelParam[1])^kernelParam[2]))
+}
+
 gaussian_kernel <- function(x1, x2, sigma) {
 #GAUSSIANKERNEL returns a radial basis function kernel between x1 and x2
 #   sim = gaussian_kernel(x1, x2, sigma) returns a gaussian kernel between x1 and x2
@@ -116,7 +126,6 @@ svm_train <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 		for (i in 1:m) {
 			
 			# Calculate Ei = f(x(i)) - y(i) using (2). 
-			# E(i) = b + sum (X(i, :) * (repmat(alphas.*Y,1,n).*X)') - Y(i);
 			E[i] = b + sum(alphas*Y*K[,i]) - Y[i]
 			
 			if ((Y[i]*E[i] < -tol && alphas[i] < C) || (Y[i]*E[i] > tol && alphas[i] > 0)) {

@@ -101,8 +101,6 @@ smo2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps, method) {
 	}
 
 	#here we should check if representatives of both classes are presented as training points
-
-	# returns model(alpha, b, w, evals, stp, glob)
 	model = list()
 	if (method == 1) {
 		model = SMO_Keerthi_modif1(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps)
@@ -181,11 +179,8 @@ SMO_Platt <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 					break
 				}
 
-				result = examineExampleP(i, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K)
+				unpack(examineExampleP(i, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K))
 
-				# unpack result into objects
-				unpack(result)
-				
 				numChanged = numChanged + retval
 			}
 		} else {
@@ -206,11 +201,7 @@ SMO_Platt <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 					break
 				} 
 				
-				# returns [retval, alpha, w, b, stp, evals, glob]
-				result = examineExampleP(glob$I_0[i], glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K)
-				
-				# unpack result into objects
-				unpack(result)
+				unpack(examineExampleP(glob$I_0[i], glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K))
 				
 				numChanged = numChanged + retval
 			}
@@ -264,10 +255,7 @@ examineExampleP <- function(i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C,
 			
 			stp = stp + 1
 			
-			result = takeStepP(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps, K)
-			
-			# unpack result into objects
-			unpack(result)
+			unpack(takeStepP(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps, K))
 			
 			if (retval == 1) {
 				return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
@@ -283,10 +271,7 @@ examineExampleP <- function(i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C,
 			i1 = mod(r + i, k) + 1
 			stp =stp + 1
 			
-			result = takeStepP(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps, K)
-			
-			# unpack result into objects
-			unpack(result)
+			unpack(takeStepP(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps, K))
 			
 			if (retval == 1) {
 				return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
@@ -302,10 +287,7 @@ examineExampleP <- function(i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C,
 			i1 = mod(r + i, k) + 1
 			stp = stp + 1
 			
-			result = takeStepP(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps,K)
-			
-			# unpack result into objects
-			unpack(result)
+			unpack(takeStepP(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps, K))
 			
 			if (retval == 1) {
 				return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
@@ -529,10 +511,7 @@ SMO_Keerthi_modif1 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 					break
 				}
 				
-				result = examineExampleK(i, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K)
-				
-				# unpack result into objects
-				unpack(result)
+				unpack(examineExampleK(i, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K))
 				
 				numChanged = numChanged + retval
 			}
@@ -553,10 +532,7 @@ SMO_Keerthi_modif1 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 					break 
 				}
 				 
-				result = examineExampleK(glob$I_0[i], glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K)
-				
-				# unpack result into objects
-				unpack(result)
+				unpack(examineExampleK(glob$I_0[i], glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K))
 
 				numChanged = numChanged + retval
 				
@@ -654,10 +630,7 @@ SMO_Keerthi_modif2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 					break
 				}
 				
-				result = examineExampleK(i, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps,K)
-				
-				# unpack result into objects
-				unpack(result)
+				unpack(examineExampleK(i, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps, K))
 				
 				numChanged = numChanged + retval
 			}
@@ -687,10 +660,7 @@ SMO_Keerthi_modif2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 				
 				stp = stp + 1
 				
-				result = takeStepK(glob$i_up, glob$i_low, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps,K)
-				
-				# unpack result into objects
-				unpack(result)
+				unpack(takeStepK(glob$i_up, glob$i_low, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps, K))
 				
 				numChanged = numChanged + retval
 			}
@@ -1010,10 +980,7 @@ examineExampleK <- function(i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C,
 
 	stp = stp + 1
 
-	result = takeStepK(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps, K)
-	
-	# unpack result into objects
-	unpack(result)
+	unpack(takeStepK(i1, i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, evals, eps, K))
 	
 	return(list('retval' = retval, 'alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
 }

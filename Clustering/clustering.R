@@ -251,10 +251,159 @@ agglom <- function(prox_mat,code) {
 	return(list('bel' = bel, 'thres' = thres, 'cluster' = cluster))
 }
 
+dendrogram_cut <- function(bel, prox_mat) {
+##########################################################################
+# FUNCTION
+#  [lambda,cut_point_tot,hist_cut] = dendrogram_cut(bel,prox_mat)
+# This function applies the procedure discussed in the book for
+# determining the clusterings of a clustering hierarchy that best fit the
+# underlying clustering structure of the data set at hand. Also, it
+# provides a histogram with the frequency of selection of a clustering in
+# the clustering hierarchy, as the lambda parameter varies.
+#
+# INPUT ARGUMENTS:
+#  prox_mat:    NxN dissimilarity matrix for the N vectors
+#               of the data set at hand (prox_mat(i,j) is the distance between
+#               vectors xi and xj).
+#
+#  bel:         NxN matrix whose i-th row corresponds to the
+#               i-th clustering. The bel(i,j) element of the matrix contains
+#               the cluster label for the j-th vector in the i-th clustering.
+#               The first row of bel corresponds to the N-cluster clustering,
+#               the 2nd row corresponds to the (N-1)-cluster clustering and,
+#               finally, the N-th row corresponds to the single-cluster
+#               clustering.
+#
+# OUTPUT ARGUMENTS:
+#  lambda:      a vector of the values of the lambda parameter for which a
+#               clustering other than the 1-cluster and the N-cluster
+#               clusterings is obtained.
+#
+#  cut_point_tot: the index of the clustering selected for a given value
+#                 of lambda
+#
+#  hist_cut: a vector whose t-th component contains the number of times
+#           the t-th clustering has been selected (1-cluster and N-cluster
+#           clusterings are excluded).
+#
+#  NOTE:   The function also plots the corresponding histogram.
+#
+# (c) 2010 S. Theodoridis, A. Pikrakis, K. Koutroumbas, D. Cavouras
+#
+# Converted to R by: SD Separa (2016/03/31)
+#
+# Changes:
+#	Removed fighandle
+#
+##########################################################################
+
+	N = ncol(prox_mat)
+
+	# Put all distances to a vector form
+	dist_vec = numeric(0)
+	
+	for (i in 1:(N-1)) {
+		dist_vec = c(dist_vec, prox_mat[i, (i + 1):N])
+	}
+
+	cut_point_tot = numeric(0)
+
+	# The mean of non-zero distances
+	mean_dist = mean(dist_vec)
+	
+	# The standard deviation of non-zero distances
+	std_dist = sd(dist_vec)
+
+	lambda_min = -3
+	lambda_max = 3
+	lambda_step = 0.01
+
+	for (lambda in seq(lambda_min, lambda_max, by = lambda_step)) { # The parameter involved in the definition of the threshold
+		
+		theta = mean_dist + lambda * std_dist # The external threshold theta
+		
+		cut_point = N  # The level where the dendrogram will be cut
+		
+		clust_el_old = array(1, c(1, N))
+		
+		id = array(0, c(1, N))
+		h = array(0, c(1, N))
+		
+		for (i in 2:N) {
+		
+			clust_el = array(0, c(1, N))
+			
+			for (j in 1:N) { # for each cluster determine the number of elements
+				clust_el[j] = sum(bel[i, ] == j)
+			}
+			
+			max_op = (clust_el-clust_el_old) * (clust_el > 0)
+			
+			# Identify the newly formed cluster
+			vali = max(max_op) 
+			id[i] = which.max(max_op)
+			
+			list_ = which(bel[i, ] == id[i]) # Identifying the vectors that belong to the newly formed cluster.
+			
+			# Determination of the h parameter of the newly formed cluster
+			dist_list = numeric(0)
+			
+			for (k in 1:length(list_)) {
+				for (qi in (k+1):length(list_)) {
+					if (qi <= length(list_)) {
+						dist_list = c(dist_list, prox_mat[list_[k], list_[qi]])
+					}
+				}
+			}
+			
+			h[id[i]] = max(dist_list)   # median(dist_list)
+			
+			if (h[id[i]] > theta) {
+				cut_point = i - 1
+				break
+			}
+			
+			clust_el_old = clust_el
+		}
+		
+		cut_point_tot = c(cut_point_tot, cut_point)
+	}
+
+	all_clust = sum(cut_point_tot == 1)
+	one_clust = sum(cut_point_tot == N)
+
+	le = length(cut_point_tot)
+	temp = cut_point_tot[(all_clust + 1):(le - one_clust)]
+	cut_point_tot = temp
+	lambda = seq(lambda_min, lambda_max, by = lambda_step)
+	lambda = lambda[(all_clust + 1):(le - one_clust)]
+
+	qwe = numeric(0)
+	hist_cut = numeric(0)
+	
+	for (i in 2:(N-1)) {
+		tt = sum(cut_point_tot == i)
+		hist_cut = c(hist_cut, tt)
+		qwe = c(qwe, tt/601)
+	}
+	
+	te = 1:length(qwe)
+	x_axis = N - te
+	
+	plot(x_axis, qwe, pch = 8, col = 'red', xlim = c(1, N), ylim = c(0, 0.4), xlab = 'Clusterings', ylab = 'Frequency')
+	
+	for (i in 1:length(qwe)) {
+		lines(c(x_axis[i], x_axis[i]), c(0, qwe[i]))
+	}
+
+	return(list('lambda' = lambda, 'cut_point_tot' = cut_point_tot, 'hist_cut' = hist_cut))
+}
+
 test_clustering <- function() {
 	
 	X = array(c(2, 5, 6, 4, 5, 3, 2, 2, 1, 4, 5, 4, 3, 3, 2, 3, 2, 4, 8, 2, 9, 2, 10, 2, 11, 2, 10, 3, 9 ,1), c(2, 15))
 
+	# test BSAS
 	ordr = array(c(8, 6, 11, 1, 5, 2, 3, 4, 7, 10, 9, 12, 13, 14, 15), c(1, 15))
 	stopifnot(BSAS(X, theta = 2.5, qc = 15, ordr)$bel == c(1, 2, 2, 1, 1, 2, 1, 1, 1, 3, 3, 3, 3, 3, 3))
 	stopifnot(BSAS(X, theta = 1.4, qc = 15, ordr)$bel == c(4, 2, 2, 1, 5, 2, 1, 1, 4, 3, 3, 6, 6, 6, 3))
@@ -262,5 +411,11 @@ test_clustering <- function() {
 	ordr = array(c(7, 3, 1, 5, 9, 6, 8, 4, 2, 10, 15, 13, 14, 11, 12), c(1, 15))
 	stopifnot(BSAS(X, theta = 2.5, qc = 15, ordr)$bel == c(2, 1, 1, 2, 2, 1, 1, 2, 2, 3, 3, 4, 4, 4, 3))
 	cat('all BSAS tests passed\n')
+	
+	# test GAS
+	D = rbind(c(0, 1, 4, 20, 22, 23), c(1, 0, 3, 22, 24, 25), c(4, 3, 0, 23, 25, 26), c(20, 22, 23, 0, 3.5, 3.6), c(22, 24, 25, 3.5, 0, 3.6), c(23, 25, 26, 3.6, 3.7, 0))
+	result = agglom(D, 1)
+	stopifnot(result$thres == c(1.0, 3.0, 3.5, 3.6, 20.0))
+	cat('all GAS tests passed\n')
 }
 

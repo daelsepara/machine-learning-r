@@ -76,6 +76,8 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Clustering ##
 
+- basic sequential algorithmic scheme (BASS)
+
 ### k-means clustering ###
 
 - initialization of K-centroids (kmeans_initialize)

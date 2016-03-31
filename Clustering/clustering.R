@@ -70,3 +70,16 @@ BSAS <- function(X,theta, qc, ordr) {
 	
 	return(list('bel' = bel, 'repre' = repre))
 }
+
+test_clustering <- function() {
+	
+	X = array(c(2, 5, 6, 4, 5, 3, 2, 2, 1, 4, 5, 4, 3, 3, 2, 3, 2, 4, 8, 2, 9, 2, 10, 2, 11, 2, 10, 3, 9 ,1), c(2, 15))
+
+	ordr = array(c(8, 6, 11, 1, 5, 2, 3, 4, 7, 10, 9, 12, 13, 14, 15), c(1, 15))
+	stopifnot(BSAS(X, theta = 2.5, qc = 15, ordr)$bel == c(1, 2, 2, 1, 1, 2, 1, 1, 1, 3, 3, 3, 3, 3, 3))
+	stopifnot(BSAS(X, theta = 1.4, qc = 15, ordr)$bel == c(4, 2, 2, 1, 5, 2, 1, 1, 4, 3, 3, 6, 6, 6, 3))
+	stopifnot(BSAS(X, theta = 1.4, qc = 2, ordr)$bel == c(1, 2, 2, 1, 1, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2))
+	ordr = array(c(7, 3, 1, 5, 9, 6, 8, 4, 2, 10, 15, 13, 14, 11, 12), c(1, 15))
+	stopifnot(BSAS(X, theta = 2.5, qc = 15, ordr)$bel == c(2, 1, 1, 2, 2, 1, 1, 2, 2, 3, 3, 4, 4, 4, 3))
+	cat('all BSAS tests passed\n')
+}

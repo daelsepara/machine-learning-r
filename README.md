@@ -76,7 +76,8 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Clustering ##
 
-- basic sequential algorithmic scheme (BASS)
+- basic sequential algorithmic scheme (BSAS)
+- run BSAS tests (test_clustering)
 
 ### k-means clustering ###
 

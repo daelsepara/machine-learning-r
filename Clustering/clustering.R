@@ -104,21 +104,22 @@ SL_step <- function(prox_mat, merge_pair) {
 	
 	# handle out-of-bounds errors
 	if (merge_pair[2] + 1 > p2) {
-		prox_new = cbind(numeric(0), prox_mat[,1:(merge_pair[2] - 1)])
+		prox_new = cbind(numeric(0), prox_mat[, 1:(merge_pair[2] - 1)])
 	} else {
-		prox_new = cbind(prox_mat[, 1:(merge_pair[2] - 1)], prox_mat[, (merge_pair[2]+ 1):p2])
+		prox_new = cbind(prox_mat[, 1:(merge_pair[2] - 1)], prox_mat[, (merge_pair[2] + 1):p2])
 	}
 	
 	tt = apply(rbind(prox_new[merge_pair[1], ], prox_new[merge_pair[2], ]), 2, min)
 	prox_new[merge_pair[1], ] = tt
 	
 	# handle out-of-bounds errors
-	if (merge_pair[2]+1 > p1) {
-		prox_new = rbind(numeric(0), prox_new[1:(merge_pair[2]-1), ])
+	if (merge_pair[2] + 1 > p1) {
+		prox_new = rbind(numeric(0), prox_new[1:(merge_pair[2] - 1), ])
 	} else {
-		prox_new = rbind(prox_new[1:(merge_pair[2]-1), ], prox_new[(merge_pair[2]+1):p1, ])
+		prox_new = rbind(prox_new[1:(merge_pair[2] - 1), ], prox_new[(merge_pair[2] + 1):p1, ])
 	}
-	prox_new[, merge_pair[1]] = t(tt)
+	
+	prox_new[, merge_pair[1]] = tt
 
 	return(prox_new)
 }
@@ -157,9 +158,9 @@ CL_step <- function(prox_mat, merge_pair) {
 	
 	# handle out-of-bounds errors
 	if (merge_pair[2] + 1 > p2) {
-		prox_new = cbind(numeric(0), prox_mat[, (1:merge_pair[2]) - 1])
+		prox_new = cbind(numeric(0), prox_mat[, 1:(merge_pair[2] - 1)])
 	} else {
-		prox_new = cbind(prox_mat[, (1:merge_pair[2]) - 1], prox_mat[, (merge_pair[2] + 1):p2])
+		prox_new = cbind(prox_mat[, 1:(merge_pair[2] - 1)], prox_mat[, (merge_pair[2] + 1):p2])
 	}
 	
 	tt = apply(rbind(prox_new[merge_pair[1], ], prox_new[merge_pair[2], ]), 2, max)
@@ -173,7 +174,7 @@ CL_step <- function(prox_mat, merge_pair) {
 		prox_new = rbind(prox_new[1:(merge_pair[2] - 1), ], prox_new[(merge_pair[2] + 1):p1, ])
 	}
 	
-	prox_new[, merge_pair[1]] = t(tt)
+	prox_new[, merge_pair[1]] = tt
 	prox_new[merge_pair[1], merge_pair[1]] = 0
 	
 	return(prox_new)

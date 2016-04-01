@@ -180,6 +180,43 @@ CL_step <- function(prox_mat, merge_pair) {
 	return(prox_new)
 }
 
+AL_step <- function(prox_mat, merge_pair) {
+##########################################################################
+#
+# Added by: SD Separa (2016/03/31)
+#
+##########################################################################
+
+	p1 = nrow(prox_mat)
+	p2 = ncol(prox_mat)
+	
+	# handle out-of-bounds errors
+	if (merge_pair[2] + 1 > p2) {
+		prox_new = cbind(numeric(0), prox_mat[, 1:(merge_pair[2] - 1)])
+	} else {
+		prox_new = cbind(prox_mat[, 1:(merge_pair[2] - 1)], prox_mat[, (merge_pair[2] + 1):p2])
+	}
+
+	n1 = length(prox_new[merge_pair[1], ])
+	n2 = length(prox_new[merge_pair[2], ])
+	nsum = n1 + n2
+	
+	tt = n1*prox_new[merge_pair[1], ]/nsum + n2*prox_new[merge_pair[2], ]/nsum
+	prox_new[merge_pair[1], ] = tt
+	
+	# handle out-of-bounds errors
+	if (merge_pair[2] + 1 > p1) {
+		prox_new = rbind(numeric(0), prox_new[1:(merge_pair[2] - 1), ])
+	} else {
+		prox_new = rbind(prox_new[1:(merge_pair[2] - 1), ], prox_new[(merge_pair[2] + 1):p1, ])
+	}
+	
+	prox_new[, merge_pair[1]] = tt
+	prox_new[merge_pair[1], merge_pair[1]] = 0
+	
+	return(prox_new)
+}
+
 agglom <- function(prox_mat,code) {
 ##########################################################################
 # FUNCTION
@@ -223,7 +260,7 @@ agglom <- function(prox_mat,code) {
 		q2 = apply(p_min, 1, which.min)
 		r1 = min(q1)
 		r2 = which.min(q1)
-		merge_pair= c(min(q2[r2], r2), max(q2[r2], r2))
+		merge_pair = c(min(q2[r2], r2), max(q2[r2], r2))
 		thres = c(thres, r1)
 		temp = bel[i - 1, ]
 		temp[which(temp == merge_pair[2])] = merge_pair[1]
@@ -234,6 +271,8 @@ agglom <- function(prox_mat,code) {
 			prox_mat = SL_step(prox_mat, merge_pair)
 		} else if(code == 2) {
 			prox_mat = CL_step(prox_mat, merge_pair)
+		} else if(code == 3) {
+			prox_mat = AL_step(prox_mat, merge_pair)
 		}
 	}
 

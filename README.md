@@ -77,7 +77,8 @@ This is a repository for R scripts developed during my machine learning studies.
 ## Clustering ##
 
 - basic sequential algorithmic scheme (BSAS)
-- run BSAS tests (test_clustering)
+- generalized agglomerative scheme with single and complete linking (agglom)
+- run BSAS, GAS tests (test_clustering)
 
 ### k-means clustering ###
 

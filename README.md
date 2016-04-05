@@ -12,7 +12,8 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Regression ##
 
-- plot data and decision boundary (regression_plot, regression_boundary)
+- plot data and  (regression_plot)
+- plot logistric regression decision boundary (logr_boundary)
 
 ### Linear regression ###
 
@@ -23,6 +24,12 @@ This is a repository for R scripts developed during my machine learning studies.
 
 - Logistic regression cost function and gradient (logr_cost)
 - Logistic regression optimizer (logr_optimize)
+- Predictions (logr_predict)
+
+### Softmax regression ###
+
+- Softmax regression cost function and gradient (softmax_cost)
+- Softmax regression optimizer (softmax_optimize)
 
 ## Neural Network ##
 

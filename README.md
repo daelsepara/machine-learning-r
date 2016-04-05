@@ -31,6 +31,7 @@ This is a repository for R scripts developed during my machine learning studies.
 
 - Softmax regression cost function and gradient (softmax_cost)
 - Softmax regression optimizer (softmax_optimize)
+- Predictions (softmax_predict)
 
 ## Neural Network ##
 

@@ -264,6 +264,7 @@ regression_optimize <- function(f, X, y, theta, lambda = 0, num_iters = 100, met
 logr_predict <- function(theta, X, threshold = 0.5) {
 # Predicts whether the X is 0 or 1 using learned logistic 
 # regression parameters theta
+#
 
 	# number of training examples
 	m = nrow(X)
@@ -276,6 +277,28 @@ logr_predict <- function(theta, X, threshold = 0.5) {
 	# set 1 on positive labels
 	p = array(0, c(m, 1))
 	p[pos] = 1
+	
+	return(p)
+}
+
+softmax_predict <- function(theta, X) {
+# Multiclass prediction for X using learned softmax
+# regression parameters theta
+
+	# for repmat
+	require(pracma)
+	
+	# check number of classes
+	k = ncol(theta)
+	m = nrow(X)
+	
+	# compute softmax
+	z = exp(X %*% theta)
+	zs = array(apply(z, 1, sum), c(m, 1))
+	h = z / repmat(zs, 1, k)
+	
+	# compute predicted class
+	p = apply(h, 1, which.max)
 	
 	return(p)
 }

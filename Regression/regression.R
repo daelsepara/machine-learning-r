@@ -187,10 +187,12 @@ softmax_cost <- function(X, y, theta, lambda = 0) {
 
   theta = array(theta, c(n, length(theta) / n))
   
-  # k = 1 .. num_classes
-  num_classes = ncol(theta) + 1
+  k = ncol(theta)
+  num_classes = k + 1
   
-  z = rbind(exp(t(theta) %*% X), array(1, c(1, m)))
+  # numerically stable way of computing softmax
+  tx = rbind(t(theta) %*% X, array(0, c(1, m)))
+  z = exp(tx - repmat(array(apply(tx, 2, max), c(1, m)), num_classes, 1))
   h = z / repmat(apply(z, 2, sum), num_classes, 1)
   
   # determine index where y == k
@@ -292,13 +294,16 @@ softmax_predict <- function(theta, X) {
 	k = ncol(theta)
 	m = nrow(X)
 	
-	# compute softmax
-	z = exp(X %*% theta)
+	# numerically stable way of computing softmax
+	xt = X %*% theta
+	z = exp(xt - repmat(array(apply(xt, 1, max), c(m, 1)), 1, k))
 	zs = array(apply(z, 1, sum), c(m, 1))
+	
+	# compute softmax
 	h = z / repmat(zs, 1, k)
 	
 	# compute predicted class
-	p = apply(h, 1, which.max)
+	p = as.integer(apply(h, 1, which.max))
 	
 	return(p)
 }

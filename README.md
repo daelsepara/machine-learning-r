@@ -13,7 +13,8 @@ This is a repository for R scripts developed during my machine learning studies.
 ## Regression ##
 
 - plot data and  (regression_plot)
-- plot logistric regression decision boundary (logr_boundary)
+- plot regression decision boundary (regression_boundary)
+- generic regression wrapper function (regression_optimize)
 
 ### Linear regression ###
 

@@ -143,11 +143,101 @@ logr_cost <- function(X, y, theta, lambda = 0) {
 	return(list('J' = J, 'gradient' = gradient))
 }
 
-logr_optimize <- function(X, y, theta, lambda, num_iters, method = 'L-BFGS-B') {
-# Compute optimum model parameters using R's optimizer using regularized
+logr_optimize <- function(X, y, theta, lambda = 0, num_iters = 100, method = 'L-BFGS-B') {
+# Compute optimum regularized model parameters using R's optimizer and
 # logistic regression cost function
 #
 # Inputs:
+#    X[m, n]	training set
+#       y[m]	true values for X	
+#     lambda	regularization parameter
+#   theta[n]	model parameters
+#  num_iters	maximum number of iterations
+#     method	Optimization method to use: 'Nelder-Mead', 'BFGS', 'CG', 'L-BFGS-B', 'SANN', 'Brent'
+#
+# Outputs:
+#	   theta	optimum theta
+#
+# See: ?optim
+
+	return(regression_optimize(logr_cost, X, y, theta, lambda, num_iters, method))
+}
+
+softmax_cost <- function(X, y, theta, lambda = 0) {
+# Compute cost and gradient for softmax regression with regularization parameter lambda
+#
+# Inputs:
+#    X[m, n]	training set
+#       y[m]	true values for X	
+#theta[n, k]	model parameters (n features, k-classes)
+#     lambda	regularization parameter
+#  
+# Outputs:
+#          J	softmax regression cost function
+#   gradient	gradient of cost function with respect to theta
+#
+
+  # for repmat
+  require(pracma)
+  
+  X = t(X)
+  
+  m = ncol(X)
+  n = nrow(X)
+
+  theta = array(theta, c(n, length(theta) / n))
+  
+  # k = 1 .. num_classes
+  num_classes = ncol(theta) + 1
+  
+  z = rbind(exp(t(theta) %*% X), array(1, c(1, m)))
+  h = z / repmat(apply(z, 2, sum), num_classes, 1)
+  
+  # determine index where y == k
+  ind = (1:m - 1) * num_classes + y
+  
+  J = -sum(log(h[ind])) + lambda * sum(theta ^ 2) / 2
+  
+  yk = array(0, c(num_classes, m))
+  yk[ind] = 1
+
+  # ignore last row
+  rows = 1:(num_classes - 1)
+  
+  yk = yk[rows, ]
+  h = h[rows, ]
+  
+  # compute gradient
+  gradient = - as.vector(X %*% (yk - h) - lambda*theta)
+
+  return(list('J' = J, 'gradient' = gradient))
+}
+
+softmax_optimize <- function(X, y, theta, lambda = 0, num_iters = 100, method = 'L-BFGS-B') {
+# Compute regularized optimum model parameters using R's optimizer and
+# softmax regression cost function
+#
+# Inputs:
+#    X[m, n]	training set
+#       y[m]	true values for X
+#theta[n, k]	model parameters (n-features, k-classes)
+#     lambda	regularization parameter
+#  num_iters	maximum number of iterations
+#     method	Optimization method to use: 'Nelder-Mead', 'BFGS', 'CG', 'L-BFGS-B', 'SANN', 'Brent'
+#
+# Outputs:
+#	   theta	optimum theta
+#
+# See: ?optim
+  
+  return(regression_optimize(softmax_cost, X, y, theta, lambda, num_iters, method))
+}
+
+regression_optimize <- function(f, X, y, theta, lambda = 0, num_iters = 100, method = 'L-BFGS-B') {
+# Compute optimum regularized model parameters using R's optimizer
+#
+# Inputs:
+#          f	cost/gradient function
 #    X[m, n]	training set
 #       y[m]	true values for X	
 #     lambda	regularization parameter
@@ -160,7 +250,7 @@ logr_optimize <- function(X, y, theta, lambda, num_iters, method = 'L-BFGS-B') {
 # See: ?optim
 
 	# optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
-	result = optim(par = theta, fn = function(theta) { return(logr_cost(X, y, theta, lambda)$J) }, gr = function(theta) { return(logr_cost(X, y, theta, lambda)$gradient) }, control = list('maxit' = num_iters), method = method)
+	result = optim(par = theta, fn = function(theta) { return(f(X, y, theta, lambda)$J) }, gr = function(theta) { return(f(X, y, theta, lambda)$gradient) }, control = list('maxit' = num_iters), method = method)
 	
 	cat('\nResults:\n')
 	cat(paste('J =', result$value, '\n'))
@@ -198,7 +288,6 @@ mapFeature <- function(x1, x2, degree = 6) {
 #   Returns a new feature array with more features, comprising of 
 #   x1, x2, x1^2, x2^2, x1*x2, x1*x2^2, etc..
 #
-
 	polyFeatures = array(1, c(nrow(x1), 1))
 	
 	for (i in 1:degree){
@@ -210,7 +299,7 @@ mapFeature <- function(x1, x2, degree = 6) {
 	return(polyFeatures)
 }
 
-logr_boundary <- function(X, y, theta) {
+regression_boundary <- function(X, y, theta) {
 # Plots decision boundary learned by logistic regression
 #
 # Inputs:
@@ -246,92 +335,10 @@ logr_boundary <- function(X, y, theta) {
 	}
 }
 
-softmax_cost <- function(X, y, theta, lambda = 0) {
-  # Compute cost and gradient for softmax regression with regularization parameter lambda
-  #
-  # Inputs:
-  #    X[j, n]  n'th coordinate of the j'th example.
-  #       y[j]	label for each example
-  #theta[n, c]  model parameters c = num_classes - 1
-  #     lambda	regularization parameter
-  #  
-  # Outputs:
-  #          J	softmax regression cost function
-  #   gradient	gradient of cost function with respect to theta
-  #
-  # Note: Regularization has not been implemented yet
-
-  # for repmat
-  require(pracma)
-  
-  X = t(X)
-  
-  m = ncol(X)
-  n = nrow(X)
-
-  theta = array(theta, c(n, length(theta)/n))
-  
-  # k = 1 .. num_classes
-  num_classes = ncol(theta) + 1
-  
-  z = rbind(exp(t(theta) %*% X), array(1, c(1, m)))
-  h = z / repmat(apply(z, 2, sum), num_classes, 1)
-  
-  # determine index where y == k
-  ind = (1:m - 1) * num_classes + y
-  
-  J = -sum(log(h[ind])) + lambda * sum(theta ^ 2) / 2
-  
-  yk = array(0, c(num_classes, m))
-  yk[ind] = 1
-
-  # ignore last row
-  yk = yk[1:(num_classes - 1), ]
-  h = h[1:(num_classes - 1), ]
-  
-  # compute gradient
-  gradient = - as.vector(X %*% (yk - h) - lambda*theta)
-
-  return(list('J' = J, 'gradient' = gradient))
-}
-
-softmax_optimize <- function(X, y, theta, lambda = 0, num_iters = 100, method = 'L-BFGS-B') {
-  # Compute optimum model parameters using R's optimizer using regularized
-  # logistic regression cost function
-  #
-  # Inputs:
-  #    X[n, j]  n'th coordinate of the j'th example.
-  #       y[j]	label for each example
-  #theta[n, c]  model parameters c = num_classes - 1
-  #     lambda	regularization parameter
-  #  
-  # Outputs:
-  #          J	softmax regression cost function
-  #   gradient	gradient of cost function with respect to theta
-  #
-  # Note: Regularization has not been implemented yet
-  #
-  # See: ?optim
-  
-  options = list('maxit' = num_iters)
-  
-  # optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
-  result = optim(par = theta, fn = function(theta) { return(softmax_cost(X, y, theta, lambda)$J) }, gr = function(theta) { return(softmax_cost(X, y, theta, lambda)$gradient) }, control = options, method = method)
-  
-  cat('\nResults:\n')
-  cat(paste('J =', result$value, '\n'))
-  cat(paste('iterations =', result$counts[1], '\n'))
-  
-  theta_optimum = result$par
-  
-  return(theta_optimum)
-}
-
 regression_plot <- function(X, y) {
 # Plots the data points X and y into a new figure 
 #   regression_plot(x,y) plots the data points with + for the positive examples
 #   and o for the negative examples. X is assumed to be a mx2 matrix.
-# 
 #
 # Inputs:
 #   X[m, n]	training set

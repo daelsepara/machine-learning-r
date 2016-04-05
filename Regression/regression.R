@@ -206,9 +206,9 @@ softmax_cost <- function(X, y, theta, lambda = 0) {
   
   yk = yk[rows, ]
   h = h[rows, ]
-  
+
   # compute gradient
-  gradient = - as.vector(X %*% (yk - h) - lambda*theta)
+  gradient = - as.vector(X %*% t(yk - h) - lambda*theta)
 
   return(list('J' = J, 'gradient' = gradient))
 }

@@ -185,6 +185,7 @@ softmax_cost <- function(X, y, theta, lambda = 0) {
   m = ncol(X)
   n = nrow(X)
 
+  # reshape theta into a matrix
   theta = array(theta, c(n, length(theta) / n))
   
   k = ncol(theta)
@@ -198,6 +199,7 @@ softmax_cost <- function(X, y, theta, lambda = 0) {
   # determine index where y == k
   ind = (1:m - 1) * num_classes + y
   
+  # compute regularized cost function
   J = -sum(log(h[ind])) + lambda * sum(theta ^ 2) / 2
   
   yk = array(0, c(num_classes, m))
@@ -209,8 +211,8 @@ softmax_cost <- function(X, y, theta, lambda = 0) {
   yk = yk[rows, ]
   h = h[rows, ]
 
-  # compute gradient
-  gradient = - as.vector(X %*% t(yk - h) - lambda*theta)
+  # compute gradient with regularization
+  gradient = -as.vector(X %*% t(yk - h) - lambda*theta)
 
   return(list('J' = J, 'gradient' = gradient))
 }

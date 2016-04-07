@@ -33,6 +33,12 @@ This is a repository for R scripts developed during my machine learning studies.
 - Softmax regression optimizer (softmax_optimize)
 - Predictions (softmax_predict)
 
+### Softplus regression ###
+
+- Softplus regression cost function and gradient (softplus_cost)
+- Softplus regression optimizer (softplus_optimize)
+- Predictions (softplus_predict)
+
 ## Neural Network ##
 
 - sigmoid activation

@@ -100,6 +100,20 @@ sigmoid <- function(z) {
 	return(h)
 }
 
+softplus <- function(z) {
+# Compute softplus function for z (scalar, vector, matrix)
+#
+# Inputs:
+#      z	(scalar, vector, matrix)
+#
+# Outputs:
+#   h(z)	softplus function of z
+
+	h = log(1 + exp(z))
+	
+	return(h)
+}
+
 logr_cost <- function(X, y, theta, lambda = 0) {
 # Compute cost and gradient for logistic regression with regularization parameter lambda
 #
@@ -237,6 +251,55 @@ softmax_optimize <- function(X, y, theta, lambda = 0, num_iters = 100, method = 
   return(regression_optimize(softmax_cost, X, y, theta, lambda, num_iters, method))
 }
 
+softplus_cost <- function(X, y, theta, lambda = 0) {
+# Compute cost and gradient for softplus regression
+#
+# Inputs:
+#    X[m, n]	training set
+#       y[m]	true values for X	
+#theta[n, k]	model parameters (n features, k-classes)
+#  
+# Outputs:
+#          J	softmax regression cost function
+#   gradient	gradient of cost function with respect to theta
+#
+
+	m = nrow(X)
+	
+	xt = X %*% theta
+
+	result = softplus(xt) - y
+	
+	# compute cost
+	J = sum(result ^ 2)/(2 * m)
+
+	gradient = as.vector(t(X) %*% (result * sigmoid(xt)) / m)
+	
+	return(list('J' = J, 'gradient' = gradient))
+}
+
+softplus_optimize <- function(X, y, theta, num_iters = 100, method = 'L-BFGS-B') {
+# Compute regularized optimum model parameters using R's optimizer and
+# softplus regression cost function
+#
+# Inputs:
+#    X[m, n]	training set
+#       y[m]	true values for X
+#theta[n, k]	model parameters (n-features, k-classes)
+#  num_iters	maximum number of iterations
+#     method	Optimization method to use: 'Nelder-Mead', 'BFGS', 'CG', 'L-BFGS-B', 'SANN', 'Brent'
+#
+# Outputs:
+#	   theta	optimum theta
+#
+# See: ?optim
+  
+
+  return(regression_optimize(softplus_cost, X, y, theta, 0, num_iters, method))
+
+}
+
+
 regression_optimize <- function(f, X, y, theta, lambda = 0, num_iters = 100, method = 'L-BFGS-B') {
 # Compute optimum regularized model parameters using R's optimizer
 #
@@ -305,6 +368,26 @@ softmax_predict <- function(theta, X) {
 	# compute predicted class
 	p = array(as.integer(apply(h, 1, which.max)), c(m, 1))
 
+	return(p)
+}
+
+softplus_predict <- function(theta, X, threshold = 0.5) {
+# Predicts whether the X is 0 or 1 using learned softplus 
+# regression parameters theta
+#
+
+	# number of training examples
+	m = nrow(X)
+
+	# compute softplus values
+	h = softplus(X %*% theta)
+	
+	pos = which(h >= threshold)
+
+	# set 1 on positive labels
+	p = array(0, c(m, 1))
+	p[pos] = 1
+	
 	return(p)
 }
 

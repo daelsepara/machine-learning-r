@@ -45,6 +45,7 @@ This is a repository for R scripts developed during my machine learning studies.
 - training, forward and backward propagation (nnet_train, nnet_forward, nnet_backprop)
 - multi-class classification/prediction (nnet_predict)
 - fast gradient descent computation (nnet_optimize, nnet_cost, fmincg)
+- training using R's optim function (nnet_minimize)
 
 ## Support Vector Machines ##
 

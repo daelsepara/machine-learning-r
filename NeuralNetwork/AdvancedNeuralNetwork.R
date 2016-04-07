@@ -67,7 +67,7 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
 }
 
 nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6) {
-# Neutral network cost function for use with advanced optimization method (fmincg)
+# Neutral network cost function for use with advanced optimization method (fmincg/optim)
   
 	# P1 training_set
 	# P2 y_matrix (expected output)
@@ -92,7 +92,7 @@ nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6) {
 	return(list('J' = result$Error, 'grad' = grad))
 }
 
-nnet_train <-function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE) {
+nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE) {
 # Network training
   
 	# For multi-classification problem, format expected output
@@ -152,7 +152,7 @@ nnet_train <-function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), trainin
 	return(list('y_k' = y_k, 'Error' = Error, 'iterations' = iter, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
-nnet_optimize <-function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0) {
+nnet_optimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0) {
 # Network training using advanced optimization algorithm fmincg
   
 	# For multi-classification problem, format expected output
@@ -195,6 +195,52 @@ nnet_optimize <-function(maxiter = 100, training_set = array(0) , output = array
 	prediction = nnet_predict(training_set, w_ji, w_kj)
 	
 	return(list('y_k' = y_k, 'Error' = Error, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
+}
+
+nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0) {
+  # Network training using R's optimizer
+  
+  # For multi-classification problem, format expected output
+  # i.e. matrix, each row corresponds to a training pattern.
+  # Each element in the row-vector is a 0 or 1 indicating whether
+  # or not it belongs to that particular class
+  if (num_labels > 1) {
+    eye_matrix = diag(num_labels)
+    y_matrix = eye_matrix[output, ]
+  } else {
+    # binary classification
+    y_matrix = output
+  }
+  
+  # determine network dimensions from user input
+  j = hidden_units
+  inputs = ncol(training_set)
+  
+  # intialize interconnection weights with random values (-min_max, min_max) or Gaussian (mean = 0, sd = min_max)
+  if (!isGaussian) {
+    w_ji = array(runif(n = j * (inputs + 1), min = -min_max, max = min_max), c(j, inputs + 1))
+    w_kj = array(runif(n = num_labels * (j + 1), min = -min_max, max = min_max), c(num_labels, j + 1))
+  } else {
+    w_ji = array(rnorm(n = j * (inputs + 1), mean = 0, sd = abs(min_max)), c(j, inputs + 1))
+    w_kj = array(rnorm(n = num_labels * (j + 1), mean = 0, sd = abs(min_max)), c(num_labels, j + 1))
+  }
+  
+  theta = c(as.vector(w_ji), as.vector(w_kj))
+  # optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
+  result = optim(par = theta, fn = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda)$J) }, gr = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda)$grad) }, control = list('maxit' = maxiter), method = 'L-BFGS-B')
+  
+  offs = j * (inputs + 1)
+  w_ji = array(result$par[1:offs], c(j, inputs + 1))
+  w_kj = array(result$par[(1 + offs):length(result$par)], c(num_labels, j + 1))
+  
+  # performance
+  Error = result$value
+  y_k = nnet_forward(training_set, w_ji, w_kj)$y_k
+  
+  # add prediction
+  prediction = nnet_predict(training_set, w_ji, w_kj)
+  
+  return(list('y_k' = y_k, 'Error' = Error, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
 nnet_predict <- function(test_set, w_ji, w_kj, threshold = 0.5) {

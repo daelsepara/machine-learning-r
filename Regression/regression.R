@@ -300,13 +300,11 @@ softmax_predict <- function(theta, X) {
 	xt = X %*% theta
 	z = exp(xt - repmat(array(apply(xt, 1, max), c(m, 1)), 1, k))
 	zs = array(apply(z, 1, sum), c(m, 1))
-	
-	# compute softmax
 	h = z / repmat(zs, 1, k)
 	
 	# compute predicted class
-	p = as.integer(apply(h, 1, which.max))
-	
+	p = array(as.integer(apply(h, 1, which.max)), c(m, 1))
+
 	return(p)
 }
 

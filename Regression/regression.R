@@ -258,6 +258,7 @@ softplus_cost <- function(X, y, theta, lambda = 0) {
 #    X[m, n]	training set
 #       y[m]	true values for X	
 #theta[n, k]	model parameters (n features, k-classes)
+#     lambda	regularization parameter
 #  
 # Outputs:
 #          J	softmax regression cost function
@@ -271,14 +272,14 @@ softplus_cost <- function(X, y, theta, lambda = 0) {
 	result = softplus(xt) - y
 	
 	# compute cost
-	J = sum(result ^ 2)/(2 * m)
+	J = sum(result ^ 2)/(2 * m)  + lambda * sum(theta ^ 2)/(2 * m)
 
-	gradient = as.vector(t(X) %*% (result * sigmoid(xt)) / m)
+	gradient = as.vector(t(X) %*% (result * sigmoid(xt)) / m + lambda * theta / m)
 	
 	return(list('J' = J, 'gradient' = gradient))
 }
 
-softplus_optimize <- function(X, y, theta, num_iters = 100, method = 'L-BFGS-B') {
+softplus_optimize <- function(X, y, theta, lambda = 0, num_iters = 100, method = 'L-BFGS-B') {
 # Compute regularized optimum model parameters using R's optimizer and
 # softplus regression cost function
 #
@@ -286,6 +287,7 @@ softplus_optimize <- function(X, y, theta, num_iters = 100, method = 'L-BFGS-B')
 #    X[m, n]	training set
 #       y[m]	true values for X
 #theta[n, k]	model parameters (n-features, k-classes)
+#     lambda	regularization parameter
 #  num_iters	maximum number of iterations
 #     method	Optimization method to use: 'Nelder-Mead', 'BFGS', 'CG', 'L-BFGS-B', 'SANN', 'Brent'
 #
@@ -294,8 +296,7 @@ softplus_optimize <- function(X, y, theta, num_iters = 100, method = 'L-BFGS-B')
 #
 # See: ?optim
   
-
-  return(regression_optimize(softplus_cost, X, y, theta, 0, num_iters, method))
+  return(regression_optimize(softplus_cost, X, y, theta, lambda, num_iters, method))
 
 }
 

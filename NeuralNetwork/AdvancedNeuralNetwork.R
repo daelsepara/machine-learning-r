@@ -1,13 +1,13 @@
-h_func <- function(x) {
+sigmoid <- function(x) {
 # Sigmoid activation function
   
   return(1/(1 + exp(-x)))
 }
 
-h_funcd <- function(x) {
+dsigmoid <- function(x) {
 # 1st-derivative of activation function
   
-  z = h_func(x)
+  z = sigmoid(x)
   return(z * (1 - z))
 }
 
@@ -26,7 +26,7 @@ nnet_forward <- function(training_set, w_ji, w_kj, use_softmax = FALSE) {
   
   # compute output layer
   if (!use_softmax) {
-    y_k = h_func(a_2 %*% t(w_kj))
+    y_k = sigmoid(a_2 %*% t(w_kj))
   } else {
     y_k = nnet_softmax(a_2 %*% t(w_kj))
   }
@@ -43,7 +43,7 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
   
   # compute intermediate delta values per layer
   d3 = y_k - y_matrix
-  d2 = d3 %*% w_kj[, 2:ncol(w_kj)] * h_funcd(z_2)
+  d2 = d3 %*% w_kj[, 2:ncol(w_kj)] * dsigmoid(z_2)
   
   # compute cost function and gradient
   if (!use_softmax) {

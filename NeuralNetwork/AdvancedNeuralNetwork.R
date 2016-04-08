@@ -1,115 +1,116 @@
 h_func <- function(x) {
 # Sigmoid activation function
   
-	return(1/(1 + exp(-x)))
+  return(1/(1 + exp(-x)))
 }
 
 h_funcd <- function(x) {
 # 1st-derivative of activation function
+  
   z = h_func(x)
-	return(z * (1 - z))
+  return(z * (1 - z))
 }
 
 nnet_forward <- function(training_set, w_ji, w_kj, use_softmax = FALSE) {
 # Forward propagation
   
-	# add bias column to input layer
-	x = cbind(array(1, c(nrow(training_set), 1)), training_set)
-	
-	# compute hidden layer activation
-	z_2 = x %*% t(w_ji)
-	z_j = h_func(z_2)
-	
-	# add bias column
-	a_2 = cbind(array(1, c(nrow(z_j), 1)), z_j)
-	
-	# compute output layer
-	if (!use_softmax) {
-	  y_k = h_func(a_2 %*% t(w_kj))
-	} else {
-	  y_k = nnet_softmax(a_2 %*% t(w_kj))
-	}
-	
-	return(list('y_k' = y_k, 'z_2' = z_2, 'a_2' = a_2))
+  # add bias column to input layer
+  x = cbind(array(1, c(nrow(training_set), 1)), training_set)
+  
+  # compute hidden layer activation
+  z_2 = x %*% t(w_ji)
+  z_j = h_func(z_2)
+  
+  # add bias column
+  a_2 = cbind(array(1, c(nrow(z_j), 1)), z_j)
+  
+  # compute output layer
+  if (!use_softmax) {
+    y_k = h_func(a_2 %*% t(w_kj))
+  } else {
+    y_k = nnet_softmax(a_2 %*% t(w_kj))
+  }
+  
+  return(list('y_k' = y_k, 'z_2' = z_2, 'a_2' = a_2))
 }
 
 nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lambda = 0, use_softmax = FALSE) {
 # Backward propagation
   
-	# add bias column
-	x = cbind(array(1, c(nrow(training_set), 1)), training_set)
-	m = nrow(x)
-	
-	# compute intermediate delta values per layer
-	d3 = y_k - y_matrix
-	d2 = d3 %*% w_kj[, 2:ncol(w_kj)] * h_funcd(z_2)
-	
-	# compute cost function and gradient
-	if (!use_softmax) {
-	  
-	  dWji = (t(d2) %*% x) / m
-	  dWkj = (t(d3) %*% a_2) / m
-	  cost = sum(-y_matrix * log(y_k) - (1 - y_matrix) * log(1 - y_k)) / m
+  # add bias column
+  x = cbind(array(1, c(nrow(training_set), 1)), training_set)
+  m = nrow(x)
+  
+  # compute intermediate delta values per layer
+  d3 = y_k - y_matrix
+  d2 = d3 %*% w_kj[, 2:ncol(w_kj)] * h_funcd(z_2)
+  
+  # compute cost function and gradient
+  if (!use_softmax) {
+    
+    dWji = (t(d2) %*% x) / m
+    dWkj = (t(d3) %*% a_2) / m
+    cost = sum(-y_matrix * log(y_k) - (1 - y_matrix) * log(1 - y_k)) / m
   	
-	} else {
-	  
-	  # softmax activation cost function
-	  cost = - sum(log(y_k[which(y_matrix == 1)]))
-	  dWji = (t(d2) %*% x)
-	  dWkj = (t(d3) %*% a_2)
-	}
-	
-	# regularization on lambda != 0
-	if (lambda != 0) {
-	
-		rWji = w_ji
-		rWkj = w_kj
-		
-		# do not regularize bias column
-		rWji[, 1] = array(0, nrow(w_ji))
-		rWkj[, 1] = array(0, nrow(w_kj))
-	
-		if (!use_softmax)	{
-		  
-		  cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / (2 * m)
-		  dWji = dWji + lambda * rWji / m
-		  dWkj = dWkj + lambda * rWkj / m
+  } else {
+    
+    # softmax activation cost function
+    cost = - sum(log(y_k[which(y_matrix == 1)]))
+    dWji = (t(d2) %*% x)
+    dWkj = (t(d3) %*% a_2)
+  }
+  
+  # regularization on lambda != 0
+  if (lambda != 0) {
+  
+  	rWji = w_ji
+  	rWkj = w_kj
+  	
+  	# do not regularize bias column
+  	rWji[, 1] = array(0, nrow(w_ji))
+  	rWkj[, 1] = array(0, nrow(w_kj))
+  
+  	if (!use_softmax)	{
+  	  
+  	  cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / (2 * m)
+  	  dWji = dWji + lambda * rWji / m
+  	  dWkj = dWkj + lambda * rWkj / m
   		
-		} else {
-		  
-		  cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
-		  dWji = dWji + lambda * rWji
-		  dWkj = dWkj + lambda * rWkj
-		}
-	}
-
-	return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost))	
+  	} else {
+  	  
+  	  cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
+  	  dWji = dWji + lambda * rWji
+  	  dWkj = dWkj + lambda * rWkj
+  	}
+  }
+  
+  return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost))	
 }
 
 nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6, use_softmax = FALSE) {
 # Neutral network cost function for use with advanced optimization method (fmincg/optim)
   
-	# P1 training_set
-	# P2 y_matrix (expected output)
-	# P3 number of input units
-	# P4 hidden layer units
-	# P5 number of labels
-	# P6 lambda (regularization)
-	
-	# roll up vectors into arrays
-	offs = P4 * (P3 + 1)
-	w_ji = array(X[1:offs], c(P4, P3 + 1))
-	w_kj = array(X[(1 + offs):length(X)], c(P5, P4 + 1))
-
-	# compute cost function (J) and its gradients (partial derivatives)
-	# using forward and backpropagation
-	forward = nnet_forward(P1, w_ji, w_kj, use_softmax)
-	result = nnet_backprop(P1, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, P2, P6, use_softmax)
-
-	# unroll gradient matrices into one vector
-	grad = c(as.vector(result$dWji), as.vector(result$dWkj))
-
-	return(list('J' = result$Error, 'grad' = grad))
+  # P1 training_set
+  # P2 y_matrix (expected output)
+  # P3 number of input units
+  # P4 hidden layer units
+  # P5 number of labels
+  # P6 lambda (regularization)
+  
+  # roll up vectors into arrays
+  offs = P4 * (P3 + 1)
+  w_ji = array(X[1:offs], c(P4, P3 + 1))
+  w_kj = array(X[(1 + offs):length(X)], c(P5, P4 + 1))
+  
+  # compute cost function (J) and its gradients (partial derivatives)
+  # using forward and backpropagation
+  forward = nnet_forward(P1, w_ji, w_kj, use_softmax)
+  result = nnet_backprop(P1, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, P2, P6, use_softmax)
+  
+  # unroll gradient matrices into one vector
+  grad = c(as.vector(result$dWji), as.vector(result$dWkj))
+  
+  return(list('J' = result$Error, 'grad' = grad))
 }
 
 nnet_labels <- function(output, num_labels) {
@@ -143,30 +144,29 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   w_ji = nnet_weights(min_max, j, inputs + 1, isGaussian)
   w_kj = nnet_weights(min_max, num_labels, j + 1, isGaussian)
   
-	iter = 0
-	Error = 1.0
-	
-	y_k = numeric(0)
+  iter = 0
+  Error = 1.0
+  
+  y_k = numeric(0)
 	
   while (iter < maxiter && Error > tol) {
-  
-  	# for training, perform forward and backpropagation each iteration, no regularization
-  	forward = nnet_forward(training_set, w_ji, w_kj)
-  	backward = nnet_backprop(training_set, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, 0)
-  	
-  	# update weights (using learning rate and gradient descent)
-  	w_ji = w_ji - learning_rate * backward$dWji
-  	w_kj = w_kj - learning_rate * backward$dWkj
-  	
-  	# save current performance
-  	Error = backward$Error
-  	y_k = forward$y_k
+    # for training, perform forward and backpropagation each iteration, no regularization
+    forward = nnet_forward(training_set, w_ji, w_kj)
+    backward = nnet_backprop(training_set, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, 0)
     
-  	iter = iter + 1
+    # update weights (using learning rate and gradient descent)
+    w_ji = w_ji - learning_rate * backward$dWji
+    w_kj = w_kj - learning_rate * backward$dWkj
   	
-  	if (iter %% 1000 == 0) {
-  	  print(paste('iteration = ', iter, ' Error = ', Error))
-  	}
+    # save current performance
+    Error = backward$Error
+    y_k = forward$y_k
+    
+    iter = iter + 1
+    
+    if (iter %% 1000 == 0) {
+      print(paste('iteration = ', iter, ' Error = ', Error))
+    }
   }
   
   # add prediction
@@ -279,14 +279,14 @@ nnet_predict <- function(test_set, w_ji, w_kj, threshold = 0.5, use_softmax = FA
   prediction = array(0, c(m, 1))
   
   if (ncol(prediction_output) > 1) {
-  	# for multi-class neural network classifier, each column in
-  	# the output correspond to a different class. The node (in the output layer)
-  	# with the highest output value corresponds to its predicted class
-  	prediction = array(as.integer(apply(prediction_output, 1, which.max)), c(m, 1))
+    # for multi-class neural network classifier, each column in
+    # the output correspond to a different class. The node (in the output layer)
+    # with the highest output value corresponds to its predicted class
+    prediction = array(as.integer(apply(prediction_output, 1, which.max)), c(m, 1))
   	
   } else {
-  	# for binary classifier, use threshold to set the output to 0 or 1
-  	prediction[which(prediction_output > threshold)] = 1
+    # for binary classifier, use threshold to set the output to 0 or 1
+    prediction[which(prediction_output > threshold)] = 1
   }
   
   return(prediction)

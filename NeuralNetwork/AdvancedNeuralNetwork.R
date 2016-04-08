@@ -180,7 +180,7 @@ nnet_weights <- function(min_max = 1, m = 1, n = 1, isGaussian = FALSE) {
   
   if (!isGaussian) {
     
-    return(array(runif(n = m * n, min = -min_max, max = min_max), c(m, m)))
+    return(array(runif(n = m * n, min = -min_max, max = min_max), c(m, n)))
     
   } else {
     

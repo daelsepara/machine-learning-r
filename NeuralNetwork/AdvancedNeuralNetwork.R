@@ -5,7 +5,7 @@ sigmoid <- function(x) {
 }
 
 dsigmoid <- function(x) {
-# 1st-derivative of activation function
+# 1st-derivative of sigmoid activation function
   
   z = sigmoid(x)
   return(z * (1 - z))

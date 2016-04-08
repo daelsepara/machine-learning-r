@@ -184,7 +184,7 @@ nnet_weights <- function(min_max = 1, m = 1, n = 1, isGaussian = FALSE) {
     
   } else {
     
-    return(array(rnorm(n = m * m, mean = 0, sd = abs(min_max)), c(m, n)))
+    return(array(rnorm(n = m * n, mean = 0, sd = abs(min_max)), c(m, n)))
   }  
 }
 

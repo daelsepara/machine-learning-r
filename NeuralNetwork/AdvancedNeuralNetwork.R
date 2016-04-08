@@ -49,8 +49,7 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
 	  
   	dWji = (t(d2) %*% x) / m
   	dWkj = (t(d3) %*% a_2) / m
-  	
-  	
+
   	cost = sum(-y_matrix * log(y_k) - (1 - y_matrix) * log(1 - y_k)) / m
   	
 	} else {
@@ -117,13 +116,13 @@ nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6, use_softmax = FALSE) {
 	return(list('J' = result$Error, 'grad' = grad))
 }
 
-nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE) {
-  # Network training
+nnet_labels <- function(output, num_labels) {
+# create labels for multi-class classification
   
   # For multi-classification problem, format expected output
   # i.e. matrix, each row corresponds to a training pattern.
   # Each element in the row-vector is a 0 or 1 indicating whether
-  # or not it belongs to that particular class
+  # or not it belongs to that particular class  
   if (num_labels > 1) {
     eye_matrix = diag(num_labels)
     y_matrix = eye_matrix[output, ]
@@ -132,18 +131,21 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
     y_matrix = output
   }
   
+  return(y_matrix)
+}
+
+nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE) {
+# Network training
+  
+  y_matrix = nnet_labels(output, num_labels)
+  
   # determine network dimensions from user input
   j = hidden_units
   inputs = ncol(training_set)
   
-  # intialize interconnection weights with random values (-min_max, min_max) or Gaussian (mean = 0, sd = min_max)
-  if (!isGaussian) {
-    w_ji = array(runif(n = j * (inputs + 1), min = -min_max, max = min_max), c(j, inputs + 1))
-    w_kj = array(runif(n = num_labels * (j + 1), min = -min_max, max = min_max), c(num_labels, j + 1))
-  } else {
-		w_ji = array(rnorm(n = j * (inputs + 1), mean = 0, sd = abs(min_max)), c(j, inputs + 1))
-		w_kj = array(rnorm(n = num_labels * (j + 1), mean = 0, sd = abs(min_max)), c(num_labels, j + 1))
-	}
+  # initialize weights with random values
+  w_ji = nnet_weights(min_max, j, inputs + 1, isGaussian)
+  w_kj = nnet_weights(min_max, num_labels, j + 1, isGaussian)
   
 	iter = 0
 	Error = 1.0
@@ -177,80 +179,64 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
 	return(list('y_k' = y_k, 'Error' = Error, 'iterations' = iter, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
+nnet_weights <- function(min_max = 1, m = 1, n = 1, isGaussian = FALSE) {
+# intialize interconnection weights with random values (-min_max, min_max) or Gaussian (mean = 0, sd = min_max)
+  
+  if (!isGaussian) {
+    
+    return(array(runif(n = m * n, min = -min_max, max = min_max), c(m, m)))
+    
+  } else {
+    
+    return(array(rnorm(n = m * m, mean = 0, sd = abs(min_max)), c(m, n)))
+  }  
+}
+
 nnet_optimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0) {
 # Network training using advanced optimization algorithm fmincg
   
-	# For multi-classification problem, format expected output
-	# i.e. matrix, each row corresponds to a training pattern.
-	# Each element in the row-vector is a 0 or 1 indicating whether
-	# or not it belongs to that particular class
-	if (num_labels > 1) {
-		eye_matrix = diag(num_labels)
-		y_matrix = eye_matrix[output, ]
-	} else {
-		# binary classification
-		y_matrix = output
-	}
+  y_matrix = nnet_labels(output, num_labels)
 	
 	# determine network dimensions from user input
 	j = hidden_units
 	inputs = ncol(training_set)
   
-	# intialize interconnection weights with random values (-min_max, min_max) or Gaussian (mean = 0, sd = min_max)
-	if (!isGaussian) {
-		w_ji = array(runif(n = j * (inputs + 1), min = -min_max, max = min_max), c(j, inputs + 1))
-		w_kj = array(runif(n = num_labels * (j + 1), min = -min_max, max = min_max), c(num_labels, j + 1))
-	} else {
-		w_ji = array(rnorm(n = j * (inputs + 1), mean = 0, sd = abs(min_max)), c(j, inputs + 1))
-		w_kj = array(rnorm(n = num_labels * (j + 1), mean = 0, sd = abs(min_max)), c(num_labels, j + 1))
-	}
-  
-	initialWeights = c(as.vector(w_ji), as.vector(w_kj))
-	optimizationResult = fmincg(nnet_cost, initialWeights, maxiter, training_set, y_matrix, inputs, j, num_labels, lambda)
+	# initialize weights with random values
+	w_ji = nnet_weights(min_max, j, inputs + 1, isGaussian)
+	w_kj = nnet_weights(min_max, num_labels, j + 1, isGaussian)
+		
+	theta = c(as.vector(w_ji), as.vector(w_kj))
+	result = fmincg(nnet_cost, theta, maxiter, training_set, y_matrix, inputs, j, num_labels, lambda)
 	
 	offs = j * (inputs + 1)
-	w_ji = array(optimizationResult$X[1:offs], c(j, inputs + 1))
-	w_kj = array(optimizationResult$X[(1 + offs):length(optimizationResult$X)], c(num_labels, j + 1))
+	w_ji = array(result$X[1:offs], c(j, inputs + 1))
+	w_kj = array(result$X[(1 + offs):length(result$X)], c(num_labels, j + 1))
 		
 	# performance
-	Error = optimizationResult$cost
+	Error = result$cost
 	y_k = nnet_forward(training_set, w_ji, w_kj)$y_k
     
 	# add prediction
 	prediction = nnet_predict(training_set, w_ji, w_kj)
 	
-	return(list('y_k' = y_k, 'Error' = Error, 'iterations' = optimizationResult$i, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
+	return(list('y_k' = y_k, 'Error' = Error, 'iterations' = result$i, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
 nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, method = 'L-BFGS-B', use_softmax = FALSE) {
-  # Network training using R's optimizer
+# Network training using R's optimizer
   
-  # For multi-classification problem, format expected output
-  # i.e. matrix, each row corresponds to a training pattern.
-  # Each element in the row-vector is a 0 or 1 indicating whether
-  # or not it belongs to that particular class
-  if (num_labels > 1) {
-    eye_matrix = diag(num_labels)
-    y_matrix = eye_matrix[output, ]
-  } else {
-    # binary classification
-    y_matrix = output
-  }
+  y_matrix = nnet_labels(output, num_labels)
   
   # determine network dimensions from user input
   j = hidden_units
   inputs = ncol(training_set)
   
-  # intialize interconnection weights with random values (-min_max, min_max) or Gaussian (mean = 0, sd = min_max)
-  if (!isGaussian) {
-    w_ji = array(runif(n = j * (inputs + 1), min = -min_max, max = min_max), c(j, inputs + 1))
-    w_kj = array(runif(n = num_labels * (j + 1), min = -min_max, max = min_max), c(num_labels, j + 1))
-  } else {
-    w_ji = array(rnorm(n = j * (inputs + 1), mean = 0, sd = abs(min_max)), c(j, inputs + 1))
-    w_kj = array(rnorm(n = num_labels * (j + 1), mean = 0, sd = abs(min_max)), c(num_labels, j + 1))
-  }
+  # initialize weights with random values
+  w_ji = nnet_weights(min_max, j, inputs + 1, isGaussian)
+  w_kj = nnet_weights(min_max, num_labels, j + 1, isGaussian)
   
   theta = c(as.vector(w_ji), as.vector(w_kj))
+  
   # optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
   result = optim(par = theta, fn = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda, use_softmax)$J) }, gr = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda, use_softmax)$grad) }, control = list('maxit' = maxiter), method = method)
   

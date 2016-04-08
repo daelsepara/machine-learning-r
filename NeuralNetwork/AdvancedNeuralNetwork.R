@@ -57,7 +57,7 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
 		rWji[, 1] = array(0, nrow(w_ji))
 		rWkj[, 1] = array(0, nrow(w_kj))
 		
-		cost = cost + lambda*(sum(rWji * rWji) + sum(rWkj * rWkj)) / (2 * m)
+		cost = cost + lambda*(sum(rWji ^ 2) + sum(rWkj ^ 2)) / (2 * m)
 		
 		dWji = dWji + lambda*rWji / m
 		dWkj = dWkj + lambda*rWkj / m

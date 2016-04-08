@@ -62,26 +62,23 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
   
   # regularization on lambda != 0
   if (lambda != 0) {
-  
-  	rWji = w_ji
-  	rWkj = w_kj
-  	
-  	# do not regularize bias column
-  	rWji[, 1] = array(0, nrow(w_ji))
-  	rWkj[, 1] = array(0, nrow(w_kj))
-  
-  	if (!use_softmax)	{
-  	  
-  	  cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / (2 * m)
-  	  dWji = dWji + lambda * rWji / m
-  	  dWkj = dWkj + lambda * rWkj / m
-  		
-  	} else {
-  	  
-  	  cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
-  	  dWji = dWji + lambda * rWji
-  	  dWkj = dWkj + lambda * rWkj
-  	}
+    
+    rWji = w_ji
+    rWkj = w_kj
+    
+    # do not regularize bias column
+    rWji[, 1] = array(0, nrow(w_ji))
+    rWkj[, 1] = array(0, nrow(w_kj))
+    
+    if (!use_softmax)	{
+      cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / (2 * m)
+      dWji = dWji + lambda * rWji / m
+      dWkj = dWkj + lambda * rWkj / m
+    } else {
+      cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
+      dWji = dWji + lambda * rWji
+      dWkj = dWkj + lambda * rWkj
+    }
   }
   
   return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost))	
@@ -165,7 +162,7 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
     iter = iter + 1
     
     if (iter %% 1000 == 0) {
-      print(paste('iteration = ', iter, ' Error = ', Error))
+      cat(paste('iteration = ', iter, ' Error = ', Error, '\n'))
     }
   }
   

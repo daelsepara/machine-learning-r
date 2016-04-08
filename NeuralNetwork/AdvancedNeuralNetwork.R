@@ -10,7 +10,23 @@ h_funcd <- function(x) {
 	return(z * (1 - z))
 }
 
-nnet_forward <- function(training_set, w_ji, w_kj) {
+nnet_softmax <- function(x) {
+# numerically stable softmax activation function for use with multi-class classification
+
+  k = ncol(x)
+  m = nrow(x)
+  
+  # get the maximum in each row
+  m_k = array(apply(x, 1, max), c(m, 1))
+  z_k = x - repmat(m_k, 1, k)
+
+  # compute softmax
+  e_k = exp(z_k) / repmat(array(apply(e_k, 1, sum), c(m, 1)), 1, k)
+  
+  return(e_k)
+}
+
+nnet_forward <- function(training_set, w_ji, w_kj, use_softmax = FALSE) {
 # Forward propagation
   
 	# add bias column to input layer
@@ -24,17 +40,22 @@ nnet_forward <- function(training_set, w_ji, w_kj) {
 	a_2 = cbind(array(1, c(nrow(z_j), 1)), z_j)
 	
 	# compute output layer
-	y_k = h_func(a_2 %*% t(w_kj))
+	if (!use_softmax) {
+	  y_k = h_func(a_2 %*% t(w_kj))
+	} else {
+	  y_k = nnet_softmax(a_2 %*% t(w_kj))
+	}
 	
 	return(list('y_k' = y_k, 'z_2' = z_2, 'a_2' = a_2))
 }
 
-nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lambda = 0) {
+nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lambda = 0, use_softmax = FALSE) {
 # Backward propagation
   
 	# add bias column
 	x = cbind(array(1, c(nrow(training_set), 1)), training_set)
 	m = nrow(x)
+	k = ncol(y_k)
 	
 	# compute intermediate delta values per layer
 	d3 = y_k - y_matrix
@@ -45,7 +66,14 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
 	dWkj = (t(d3) %*% a_2) / m
 
 	# cost function
-	cost = sum(-y_matrix * log(y_k) - (1 - y_matrix) * log(1 - y_k)) / m
+	if (!use_softmax) {
+	  
+	  cost = sum(-y_matrix * log(y_k) - (1 - y_matrix) * log(1 - y_k)) / m
+	  
+	} else {
+	  # compute softmax cost function
+	  cost = -sum(log(y_k[which(y_matrix == 1)]))
+	}
 	
 	# regularization on lambda != 0
 	if (lambda != 0) {
@@ -57,7 +85,11 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
 		rWji[, 1] = array(0, nrow(w_ji))
 		rWkj[, 1] = array(0, nrow(w_kj))
 		
-		cost = cost + lambda*(sum(rWji * rWji) + sum(rWkj * rWkj)) / (2 * m)
+		if (!use_softmax) {
+		  cost = cost + lambda*(sum(rWji ^ 2) + sum(rWkj ^ 2)) / (2 * m)
+		} else {
+		  cost = cost + lambda*(sum(w_ji ^ 2) + sum(w_kj ^ 2)) / 2
+		}
 		
 		dWji = dWji + lambda*rWji / m
 		dWkj = dWkj + lambda*rWkj / m
@@ -66,7 +98,7 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
 	return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost))	
 }
 
-nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6) {
+nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6, use_softmax = FALSE) {
 # Neutral network cost function for use with advanced optimization method (fmincg/optim)
   
 	# P1 training_set
@@ -83,8 +115,9 @@ nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6) {
 
 	# compute cost function (J) and its gradients (partial derivatives)
 	# using forward and backpropagation
-	forward = nnet_forward(P1, w_ji, w_kj)
-	result = nnet_backprop(P1, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, P2, P6)
+  forward = nnet_forward(P1, w_ji, w_kj, use_softmax)
+
+	result = nnet_backprop(P1, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, P2, P6, use_softmax)
 
 	# unroll gradient matrices into one vector
 	grad = c(as.vector(result$dWji), as.vector(result$dWkj))
@@ -197,7 +230,7 @@ nnet_optimize <- function(maxiter = 100, training_set = array(0) , output = arra
 	return(list('y_k' = y_k, 'Error' = Error, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
-nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0) {
+nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, use_softmax = FALSE) {
   # Network training using R's optimizer
   
   # For multi-classification problem, format expected output
@@ -227,7 +260,7 @@ nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = arra
   
   theta = c(as.vector(w_ji), as.vector(w_kj))
   # optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
-  result = optim(par = theta, fn = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda)$J) }, gr = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda)$grad) }, control = list('maxit' = maxiter), method = 'L-BFGS-B')
+  result = optim(par = theta, fn = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda, use_softmax)$J) }, gr = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda, use_softmax)$grad) }, control = list('maxit' = maxiter), method = 'L-BFGS-B')
   
   offs = j * (inputs + 1)
   w_ji = array(result$par[1:offs], c(j, inputs + 1))
@@ -235,18 +268,18 @@ nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = arra
   
   # performance
   Error = result$value
-  y_k = nnet_forward(training_set, w_ji, w_kj)$y_k
+  y_k = nnet_forward(training_set, w_ji, w_kj, use_softmax)$y_k
   
   # add prediction
-  prediction = nnet_predict(training_set, w_ji, w_kj)
+  prediction = nnet_predict(training_set, w_ji, w_kj, use_softmax)
   
   return(list('y_k' = y_k, 'Error' = Error, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
-nnet_predict <- function(test_set, w_ji, w_kj, threshold = 0.5) {
+nnet_predict <- function(test_set, w_ji, w_kj, threshold = 0.5, use_softmax = FALSE) {
 # Predict using neural network parameters (multi-class classification)
   
-	prediction_output = nnet_forward(test_set, w_ji, w_kj)$y_k
+	prediction_output = nnet_forward(test_set, w_ji, w_kj, use_softmax)$y_k
 	
 	m = nrow(test_set)
 	

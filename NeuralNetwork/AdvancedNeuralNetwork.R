@@ -194,10 +194,10 @@ nnet_optimize <- function(maxiter = 100, training_set = array(0) , output = arra
 	# add prediction
 	prediction = nnet_predict(training_set, w_ji, w_kj)
 	
-	return(list('y_k' = y_k, 'Error' = Error, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
+	return(list('y_k' = y_k, 'Error' = Error, 'iterations' = optimizationResult$i, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
-nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0) {
+nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, method = 'L-BFGS-B') {
   # Network training using R's optimizer
   
   # For multi-classification problem, format expected output
@@ -227,7 +227,7 @@ nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = arra
   
   theta = c(as.vector(w_ji), as.vector(w_kj))
   # optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
-  result = optim(par = theta, fn = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda)$J) }, gr = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda)$grad) }, control = list('maxit' = maxiter), method = 'L-BFGS-B')
+  result = optim(par = theta, fn = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda)$J) }, gr = function(theta) { return(nnet_cost(theta, training_set, y_matrix, inputs, j, num_labels, lambda)$grad) }, control = list('maxit' = maxiter), method = method)
   
   offs = j * (inputs + 1)
   w_ji = array(result$par[1:offs], c(j, inputs + 1))

@@ -1,4 +1,4 @@
-fmincg<-function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NULL, P5 = NULL, P6 = NULL) {
+fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NULL, P5 = NULL, P6 = NULL) {
 # Minimize a continuous differentialble multivariate function. Starting point
 # is given by "X" (D by 1), and the function named in the string "f", must
 # return a function value and a vector of partial derivatives. The Polack-
@@ -53,7 +53,7 @@ fmincg<-function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NUL
 # 1) suppress warnings on numerical error
 # 2) realmin obtained from machine parameters
 # 3) add one more check if some operations are NAN; if() fails
-# 4) calls f() directly passing all parameters P1-P6 instead of creating an argstr
+# 4) calls f() directly passing all parameters P1 - P6 instead of creating an argstr
 
 	realmin = .Machine$double.xmin
 
@@ -66,7 +66,7 @@ fmincg<-function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NUL
 		red = 1
 	}
 	
-	S='Iteration '
+	S = 'Iteration '
 
 	RHO = 0.01	# a bunch of constants for line searches
 	SIG = 0.5		# RHO and SIG are the constants in the Wolfe-Powell conditions
@@ -138,11 +138,11 @@ fmincg<-function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NUL
 					z2 = z3 - (0.5 * d3 * z3 * z3) / (d3 * z3 + f2 - f3)
 				} else {
 					# cubic fit
-					A = 6 * (f2 - f3) / z3 +3 *(d2 + d3)
-					B = 3 * (f3 - f2) - z3 * (d3 + 2*d2)
+					A = 6 * (f2 - f3) / z3 + 3 * (d2 + d3)
+					B = 3 * (f3 - f2) - z3 * (d3 + 2 * d2)
 					
 					# numerical error possible - ok!
-					z2 = suppressWarnings((sqrt(B * B - A * d2 * z3 * z3)- B)/A)
+					z2 = suppressWarnings((sqrt(B * B - A * d2 * z3 * z3) - B)/A)
 				}
 			
 				if (is.nan(z2) || is.infinite(z2) || !is.numeric(z2)) {
@@ -151,7 +151,7 @@ fmincg<-function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NUL
 				}
 				
 				# don't accept too close to limits
-				z2 = max(min(z2, INT * z3),(1 - INT) * z3)
+				z2 = max(min(z2, INT * z3), (1 - INT) * z3)
 				
 				# update the step
 				z1 = z1 + z2
@@ -185,8 +185,8 @@ fmincg<-function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NUL
 			}	
 		
 			# make cubic extrapolation
-			A = 6 *(f2 -f3) / z3 +3 * (d2 + d3)
-			B = 3 *(f3 -f2) - z3 * (d3 + 2*d2)
+			A = 6 *(f2 - f3) / z3 +3 * (d2 + d3)
+			B = 3 *(f3 - f2) - z3 * (d3 + 2 * d2)
 			
 			# num. error possible - ok!
 			z2 = suppressWarnings(-d2 * z3 * z3 / (B + sqrt(B * B - A * d2 * z3 * z3)))
@@ -201,7 +201,7 @@ fmincg<-function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NUL
 					# otherwise bisect
 					z2 = (limit - z1) / 2
 				}
-			} else if ((limit > -0.5) && (z2+z1 > limit)) {
+			} else if ((limit > -0.5) && (z2 + z1 > limit)) {
 				# extrapolation beyond max?
 				z2 = (limit - z1) / 2
 			} else if ((limit < -0.5) && (z2 + z1 > z1 * EXT)) {

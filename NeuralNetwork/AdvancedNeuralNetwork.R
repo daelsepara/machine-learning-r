@@ -128,7 +128,7 @@ nnet_labels <- function(output, num_labels) {
   return(y_matrix)
 }
 
-nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, softmax = FALSE) {
+nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE) {
 # Network training
   
   y_matrix = nnet_labels(output, num_labels)
@@ -148,12 +148,13 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
 	
   while (iter < maxiter && Error > tol) {
     # for training, perform forward and backpropagation each iteration, no regularization
-    forward = nnet_forward(training_set, w_ji, w_kj, softmax)
-    backward = nnet_backprop(training_set, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, 0, softmax)
+    forward = nnet_forward(training_set, w_ji, w_kj)
+    backward = nnet_backprop(training_set, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, 0)
     
     # update weights (using learning rate and gradient descent)
     w_ji = w_ji - learning_rate * backward$dWji
     w_kj = w_kj - learning_rate * backward$dWkj
+   
   	
     # save current performance
     Error = backward$Error

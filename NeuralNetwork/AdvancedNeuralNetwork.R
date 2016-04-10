@@ -75,9 +75,9 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
   }
   
   if (!softmax)	{
-	cost = cost / m
-	dWji = dWji / m
-	dWkj = dWkj / m
+    cost = cost / m
+    dWji = dWji / m
+    dWkj = dWkj / m
   }
 
   return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost))	
@@ -157,8 +157,8 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
 
 	# fix scaling on softmax activation
     if (softmax) {
-		dWji = dWji / m
-		dWji = dWkj / m
+      dWji = dWji / m
+      dWji = dWkj / m
     }
     
     # update weights (using learning rate and gradient descent)

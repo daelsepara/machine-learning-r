@@ -71,7 +71,6 @@ This is a repository for R scripts developed during my machine learning studies.
 - ANOVA spline 1,2,3 (anovaspline1, anovaspline2, anovaspline3)
 - ANOVA B-spline (anovabspline)
 
-
 ## Features ##
 
 - normalize all features of X[m, n]: m-examples with n-features (featureNormalize)

@@ -1,4 +1,4 @@
-fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NULL, P5 = NULL, P6 = NULL) {
+fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = NULL, P5 = NULL, P6 = NULL, P7 = NULL) {
 # Minimize a continuous differentialble multivariate function. Starting point
 # is given by "X" (D by 1), and the function named in the string "f", must
 # return a function value and a vector of partial derivatives. The Polack-
@@ -22,7 +22,7 @@ fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = N
 # and "i" the number of iterations (line searches or function evaluations,
 # depending on the sign of "length") used.
 #
-# Usage: [X, fX, i] = fmincg(f, X, options, P1, P2, P3, P4, P5, P6)
+# Usage: [X, fX, i] = fmincg(f, X, options, P1, P2, P3, P4, P5, P6, P7)
 #
 # See also: checkgrad 
 #
@@ -53,7 +53,7 @@ fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = N
 # 1) suppress warnings on numerical error
 # 2) realmin obtained from machine parameters
 # 3) add one more check if some operations are NAN; if() fails
-# 4) calls f() directly passing all parameters P1 - P6 instead of creating an argstr
+# 4) calls f() directly passing all parameters P1 - P7 instead of creating an argstr
 
 	realmin = .Machine$double.xmin
 
@@ -80,7 +80,7 @@ fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = N
 	fX = numeric(0)
 
 	# get function value and gradient
-	eval_ = f(X, P1, P2, P3 , P4, P5, P6)
+	eval_ = f(X, P1, P2, P3 , P4, P5, P6, P7)
 	f1 = eval_$J
 	df1 = eval_$grad
 
@@ -104,7 +104,7 @@ fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = N
 		# begin line search
 		X = X + z1 %*% s
 	  
-		eval_ = f(X, P1, P2, P3 , P4, P5, P6)                                 
+		eval_ = f(X, P1, P2, P3 , P4, P5, P6, P7)
 		f2 = eval_$J
 		df2 = eval_$grad
 		
@@ -157,7 +157,7 @@ fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = N
 				z1 = z1 + z2
 				X = X + z2 %*% s
 		  
-				eval_ = f(X, P1, P2, P3 , P4, P5, P6)
+				eval_ = f(X, P1, P2, P3 , P4, P5, P6, P7)
 				f2 = eval_$J
 				df2 = eval_$grad
 				
@@ -225,7 +225,7 @@ fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = N
 			z1 = z1 + z2
 			X = X + z2 %*% s
 			
-			eval_ = f(X, P1, P2, P3 , P4, P5, P6)
+			eval_ = f(X, P1, P2, P3 , P4, P5, P6, P7)
 			f2 = eval_$J
 			df2 = eval_$grad
 			

@@ -45,19 +45,18 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
   d3 = y_k - y_matrix
   d2 = d3 %*% w_kj[, 2:ncol(w_kj)] * dsigmoid(z_2)
   
+  dWji = (t(d2) %*% x)
+  dWkj = (t(d3) %*% a_2)
+  
   # compute cost function and gradient
   if (!softmax) {
-    
-    dWji = (t(d2) %*% x) / m
-    dWkj = (t(d3) %*% a_2) / m
-    cost = sum(-y_matrix * log(y_k) - (1 - y_matrix) * log(1 - y_k)) / m
+
+    cost = sum(-y_matrix * log(y_k) - (1 - y_matrix) * log(1 - y_k))
   	
   } else {
     
     # softmax activation cost function
     cost = - sum(log(y_k[which(y_matrix == 1)]))
-    dWji = (t(d2) %*% x)
-    dWkj = (t(d3) %*% a_2)
   }
   
   # regularization on lambda != 0
@@ -70,17 +69,17 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
     rWji[, 1] = array(0, nrow(w_ji))
     rWkj[, 1] = array(0, nrow(w_kj))
     
-    if (!softmax)	{
-      cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / (2 * m)
-      dWji = dWji + lambda * rWji / m
-      dWkj = dWkj + lambda * rWkj / m
-    } else {
-      cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
-      dWji = dWji + lambda * rWji
-      dWkj = dWkj + lambda * rWkj
-    }
+    cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
+    dWji = dWji + lambda * rWji
+    dWkj = dWkj + lambda * rWkj
   }
   
+  if (!softmax)	{
+	cost = cost / m
+	dWji = dWji / m
+	dWkj = dWkj / m
+  }
+
   return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost))	
 }
 
@@ -145,22 +144,26 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   Error = 1.0
   
   y_k = numeric(0)
-	
+
   m = nrow(training_set)
-  
+  	
   while (iter < maxiter && Error > tol) {
     # for training, perform forward and backpropagation each iteration, no regularization
     forward = nnet_forward(training_set, w_ji, w_kj, softmax)
     backward = nnet_backprop(training_set, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, 0, softmax)
     
-    # update weights (using learning rate and gradient descent)
-    if (!softmax) {
-      w_ji = w_ji - learning_rate * backward$dWji
-      w_kj = w_kj - learning_rate * backward$dWkj
-    } else {
-      w_ji = w_ji - learning_rate * backward$dWji / m
-      w_kj = w_kj - learning_rate * backward$dWkj / m
+    dWji = learning_rate * backward$dWji
+    dWkj = learning_rate * backward$dWkj
+
+	# fix scaling on softmax activation
+    if (softmax) {
+		dWji = dWji / m
+		dWji = dWkj / m
     }
+    
+    # update weights (using learning rate and gradient descent)
+    w_ji = w_ji - dWji
+	w_kj = w_kj - dWkj
 
     # save current performance
     Error = backward$Error

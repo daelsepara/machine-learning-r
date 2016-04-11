@@ -146,7 +146,7 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   m = nrow(training_set)
   
   if (is.null(batch_size) || batch_size > m || batch_size < 1) {
-	batch_size = m
+    batch_size = m
   }
   
   while (iter < maxiter && Error > tol) {

@@ -19,7 +19,7 @@ nnet_forward <- function(training_set, w_ji, w_kj, softmax = FALSE) {
   
   # compute hidden layer activation
   z_2 = x %*% t(w_ji)
-  z_j = h_func(z_2)
+  z_j = sigmoid(z_2)
   
   # add bias column
   a_2 = cbind(array(1, c(nrow(z_j), 1)), z_j)

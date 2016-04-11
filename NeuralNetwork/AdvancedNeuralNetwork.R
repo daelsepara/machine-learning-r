@@ -150,41 +150,43 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   }
   
   while (iter < maxiter && Error > tol) {
-	for (i in 1:floor(m/batch_size)) {
+    for (i in 1:floor(m/batch_size)) {
 
-		a = (i - 1) * batch_size + 1
-		b = a + batch_size - 1
-		
-		# train a batch of samples
-		batch = array(training_set[a:b,], c(batch_size, inputs))
-	    
-	    y_matrix = nnet_labels(array(output[a:b], c(batch_size, 1)), num_labels)
-
-		# for training, perform forward and backpropagation each iteration, no regularization
-		forward = nnet_forward(batch, w_ji, w_kj, softmax)
-		backward = nnet_backprop(batch, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, lambda, softmax)
-		
-		dWji = learning_rate * backward$dWji
-		dWkj = learning_rate * backward$dWkj
-
-		# fix scaling on softmax activation
-		if (softmax) {
-		  dWji = dWji / batch_size
-		  dWkj = dWkj / batch_size
-		}
-
-		# update weights (using learning rate and gradient descent)
-		w_ji = w_ji - dWji
-		w_kj = w_kj - dWkj
-
-		# save current performance
-		Error = backward$Error
-		
-		if (softmax) {
-		  Error = Error / batch_size
-		}
-		
-		y_k = forward$y_k
+      a = (i - 1) * batch_size + 1
+      b = a + batch_size - 1
+      
+      # train a batch of samples
+      batch = array(training_set[a:b,], c(batch_size, inputs))
+      
+      # generate labels for batched samples
+      y_matrix = nnet_labels(array(output[a:b], c(batch_size, 1)), num_labels)
+      
+      # for training, perform forward and backpropagation each iteration, no regularization
+      forward = nnet_forward(batch, w_ji, w_kj, softmax)
+      backward = nnet_backprop(batch, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, lambda, softmax)
+      
+      dWji = learning_rate * backward$dWji
+      dWkj = learning_rate * backward$dWkj
+      
+      # fix scaling on softmax activation
+      if (softmax) {
+        dWji = dWji / batch_size
+        dWkj = dWkj / batch_size
+      }
+      
+      # update weights (using learning rate and gradient descent)
+      w_ji = w_ji - dWji
+      w_kj = w_kj - dWkj
+      
+      # save current performance
+      
+      Error = backward$Error
+      
+      if (softmax) {
+        Error = Error / batch_size
+      }
+      
+      y_k = forward$y_k
     }
     
     iter = iter + 1

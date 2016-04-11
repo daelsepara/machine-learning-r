@@ -127,67 +127,7 @@ nnet_labels <- function(output, num_labels) {
   return(y_matrix)
 }
 
-nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, softmax = FALSE) {
-# Network training
-  
-  y_matrix = nnet_labels(output, num_labels)
-  
-  # determine network dimensions from user input
-  j = hidden_units
-  inputs = ncol(training_set)
-  
-  # initialize weights with random values
-  w_ji = nnet_weights(min_max, j, inputs + 1, isGaussian)
-  w_kj = nnet_weights(min_max, num_labels, j + 1, isGaussian)
-  
-  iter = 0
-  Error = 1.0
-  
-  y_k = numeric(0)
-
-  m = nrow(training_set)
-  	
-  while (iter < maxiter && Error > tol) {
-    # for training, perform forward and backpropagation each iteration, no regularization
-    forward = nnet_forward(training_set, w_ji, w_kj, softmax)
-    backward = nnet_backprop(training_set, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, lambda, softmax)
-    
-    dWji = learning_rate * backward$dWji
-    dWkj = learning_rate * backward$dWkj
-
-	# fix scaling on softmax activation
-    if (softmax) {
-      dWji = dWji / m
-      dWkj = dWkj / m
-    }
-
-    # update weights (using learning rate and gradient descent)
-    w_ji = w_ji - dWji
-	w_kj = w_kj - dWkj
-
-    # save current performance
-    Error = backward$Error
-    
-    if (softmax) {
-      Error = Error / m
-    }
-    
-    y_k = forward$y_k
-    
-    iter = iter + 1
-    
-    if (iter %% 1000 == 0) {
-      cat(paste('iteration = ', iter, ' Error = ', Error, '\n'))
-    }
-  }
-  
-  # add prediction
-  prediction = nnet_predict(test_set = training_set, w_ji = w_ji, w_kj = w_kj, softmax = softmax)
-  
-  return(list('y_k' = y_k, 'Error' = Error, 'lambda' = lambda, 'iterations' = iter, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
-}
-
-nnet_stochastic <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, batch_size = 10, lambda = 0, softmax = FALSE) {
+nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, softmax = FALSE, batch_size = NULL) {
 # Network training using stochastic gradient descent and batch processing
   
   # determine network dimensions from user input
@@ -204,6 +144,10 @@ nnet_stochastic <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), t
   y_k = numeric(0)
 
   m = nrow(training_set)
+  
+  if (is.null(batch_size) || batch_size > m || batch_size < 1) {
+	batch_size = m
+  }
   
   while (iter < maxiter && Error > tol) {
 	for (i in 1:floor(m/batch_size)) {

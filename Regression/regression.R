@@ -297,9 +297,7 @@ softplus_optimize <- function(X, y, theta, lambda = 0, num_iters = 100, method =
 # See: ?optim
   
   return(regression_optimize(softplus_cost, X, y, theta, lambda, num_iters, method))
-
 }
-
 
 regression_optimize <- function(f, X, y, theta, lambda = 0, num_iters = 100, method = 'L-BFGS-B') {
 # Compute optimum regularized model parameters using R's optimizer
@@ -319,14 +317,34 @@ regression_optimize <- function(f, X, y, theta, lambda = 0, num_iters = 100, met
 
 	# optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
 	result = optim(par = theta, fn = function(theta) { return(f(X, y, theta, lambda)$J) }, gr = function(theta) { return(f(X, y, theta, lambda)$gradient) }, control = list('maxit' = num_iters), method = method)
-	
+
 	cat('\nResults:\n')
-	cat(paste('J =', result$value, '\n'))
-	cat(paste('iterations =', result$counts[1], '\n'))
 	
-	theta_optimum = result$par
+	model = list()
 	
-	return(theta_optimum)
+	model$J = result$value
+	model$lambda = lambda
+	model$method = method
+	model$max_iter = num_iters
+	
+	cat(paste('J =', model$J, '\n'))
+	
+	# function calls
+	if (length(result$counts) > 0) {
+		model$fn = result$counts[1]
+		cat(paste('fn =', model$fn, '\n'))
+	}
+	
+	# calls to gradient function
+	if (length(result$counts) > 1) {
+		model$gr = result$counts[1]
+		cat(paste('gr =', model$gr, '\n'))
+	}
+	
+	# optimal parameters
+	model$theta = result$par
+	
+	return(model)
 }
 
 logr_predict <- function(theta, X, threshold = 0.5) {

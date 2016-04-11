@@ -22,7 +22,7 @@ cf_costfunction <- function(X, Theta, Y, R, lambda) {
 	return(list('J' = J, 'X_grad' = gradX, 'Theta_grad' = gradTheta))
 }
 
-cf_fmincg_cost <- function(theta, P1, P2, P3 , P4, P5, P6) {
+cf_fmincg_cost <- function(theta, P1, P2, P3 , P4, P5, P6, P7 = NULL) {
 # Cost function for use with advanced optimization method (fmincg)
   
 	# theta (X and Theta)

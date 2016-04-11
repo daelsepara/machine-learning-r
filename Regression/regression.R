@@ -206,7 +206,7 @@ softmax_cost <- function(X, y, theta, lambda = 0) {
   num_classes = k + 1
   
   # numerically stable way of computing softmax
-  tx = rbind(t(theta) %*% X, array(0, c(1, m)))
+  tx = rbind(t(theta) %*% X, array(1, c(1, m)))
   z = exp(tx - repmat(array(apply(tx, 2, max), c(1, m)), num_classes, 1))
   h = z / repmat(apply(z, 2, sum), num_classes, 1)
   

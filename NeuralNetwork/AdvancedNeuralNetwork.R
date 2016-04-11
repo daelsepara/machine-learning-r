@@ -158,9 +158,9 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
 	# fix scaling on softmax activation
     if (softmax) {
       dWji = dWji / m
-      dWji = dWkj / m
+      dWkj = dWkj / m
     }
-    
+
     # update weights (using learning rate and gradient descent)
     w_ji = w_ji - dWji
 	w_kj = w_kj - dWkj

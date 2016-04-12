@@ -1,13 +1,13 @@
-sigmoid <- function(x) {
+nnet_sigmoid <- function(x) {
 # Sigmoid activation function
   
   return(1/(1 + exp(-x)))
 }
 
-dsigmoid <- function(x) {
+nnet_dsigmoid <- function(x) {
 # 1st-derivative of sigmoid activation function
   
-  z = sigmoid(x)
+  z = nnet_sigmoid(x)
   return(z * (1 - z))
 }
 
@@ -19,14 +19,14 @@ nnet_forward <- function(training_set, w_ji, w_kj, softmax = FALSE) {
   
   # compute hidden layer activation
   z_2 = x %*% t(w_ji)
-  z_j = sigmoid(z_2)
+  z_j = nnet_sigmoid(z_2)
   
   # add bias column
   a_2 = cbind(array(1, c(nrow(z_j), 1)), z_j)
   
   # compute output layer
   if (!softmax) {
-    y_k = sigmoid(a_2 %*% t(w_kj))
+    y_k = nnet_sigmoid(a_2 %*% t(w_kj))
   } else {
     y_k = nnet_softmax(a_2 %*% t(w_kj))
   }
@@ -43,7 +43,7 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
   
   # compute intermediate delta values per layer
   d3 = y_k - y_matrix
-  d2 = d3 %*% w_kj[, 2:ncol(w_kj)] * dsigmoid(z_2)
+  d2 = d3 %*% w_kj[, 2:ncol(w_kj)] * nnet_dsigmoid(z_2)
   
   dWji = (t(d2) %*% x)
   dWkj = (t(d3) %*% a_2)
@@ -59,12 +59,8 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
     cost = - sum(log(y_k[which(y_matrix == 1)]))
   }
   
-  J = cost
-  regCost = 0
-  
   # regularization on lambda != 0
   if (lambda != 0) {
-    
     rWji = w_ji
     rWkj = w_kj
     
@@ -72,9 +68,7 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
     rWji[, 1] = array(0, nrow(w_ji))
     rWkj[, 1] = array(0, nrow(w_kj))
     
-    regCost = lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
-    
-    cost = cost + regCost
+    cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
     dWji = dWji + lambda * rWji
     dWkj = dWkj + lambda * rWkj
   }
@@ -85,7 +79,7 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
     dWkj = dWkj / m
   }
 
-  return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost, 'J' = J, 'regCost' = regCost))	
+  return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost))	
 }
 
 nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6, softmax = FALSE) {
@@ -132,7 +126,7 @@ nnet_labels <- function(output, num_labels) {
   return(y_matrix)
 }
 
-nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, softmax = FALSE, batch_size = NULL) {
+nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, softmax = FALSE) {
 # Network training using stochastic gradient descent and batch processing
   
   # determine network dimensions from user input
@@ -149,6 +143,66 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   y_k = numeric(0)
 
   m = nrow(training_set)
+  y_matrix = nnet_labels(output, num_labels)
+  
+  while (iter < maxiter && Error > tol) {
+
+    # for training, perform forward and backpropagation each iteration
+    forward = nnet_forward(training_set, w_ji, w_kj, softmax)
+    backward = nnet_backprop(training_set, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, lambda, softmax)
+    
+    dWji = learning_rate * backward$dWji
+    dWkj = learning_rate * backward$dWkj
+    
+    # fix scaling on softmax activation
+    if (softmax) {
+      dWji = dWji / m
+      dWkj = dWkj / m
+    }
+    
+    # update weights (using learning rate and gradient descent)
+    w_ji = w_ji - dWji
+    w_kj = w_kj - dWkj
+    
+    # save current performance
+    Error = backward$Error
+    
+    if (softmax) {
+      Error = Error / m
+    }
+    
+    y_k = forward$y_k
+
+    iter = iter + 1
+    
+    if (iter %% 1000 == 0) {
+      cat(paste('iteration = ', iter, ' Error = ', Error, '\n'))
+    }
+  }
+  
+  # add prediction
+  prediction = nnet_predict(test_set = training_set, w_ji = w_ji, w_kj = w_kj, softmax = softmax)
+  
+  return(list('y_k' = y_k, 'Error' = Error, 'lambda' = lambda, 'iterations' = iter, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
+}
+
+nnet_stochastic <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, softmax = FALSE, batch_size = NULL) {
+  # Network training using stochastic gradient descent and batch processing
+  
+  # determine network dimensions from user input
+  j = hidden_units
+  inputs = ncol(training_set)
+  
+  # initialize weights with random values
+  w_ji = nnet_weights(min_max, j, inputs + 1, isGaussian)
+  w_kj = nnet_weights(min_max, num_labels, j + 1, isGaussian)
+  
+  iter = 0
+  Error = 1.0
+  
+  y_k = numeric(0)
+  
+  m = nrow(training_set)
   
   if (is.null(batch_size) || batch_size > m || batch_size < 1) {
     batch_size = m
@@ -156,7 +210,7 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   
   while (iter < maxiter && Error > tol) {
     for (i in 1:floor(m/batch_size)) {
-
+      
       a = (i - 1) * batch_size + 1
       b = a + batch_size - 1
       
@@ -168,7 +222,7 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
       
       # for training, perform forward and backpropagation each iteration, no regularization
       forward = nnet_forward(batch, w_ji, w_kj, softmax)
-      backward = nnet_backprop(batch, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, lambda, softmax)
+      backward = nnet_backprop(batch, forward$y_k, forward$z_2, forward$a_2, w_ji, w_kj, y_matrix, 0, softmax)
       
       dWji = learning_rate * backward$dWji
       dWkj = learning_rate * backward$dWkj
@@ -184,29 +238,30 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
       w_kj = w_kj - dWkj
       
       # save current performance
-      
       Error = backward$Error
       
       if (softmax) {
         Error = Error / batch_size
       }
       
-      y_k = forward$y_k
-    }
-    
-    iter = iter + 1
-    
-    if (iter %% 1000 == 0) {
-      cat(paste('iteration = ', iter, ' Error = ', Error, '\n'))
+      iter = iter + 1
+      
+      if (iter %% 1000 == 0) {
+        cat(paste('iteration = ', iter, ' Error = ', Error, '\n'))
+      }
+      
+      if (iter >= maxiter || Error <= tol) {
+        break
+      }
     }
   }
   
   y_k = nnet_forward(training_set, w_ji, w_kj, softmax)$y_k
-    
+  
   # add prediction
   prediction = nnet_predict(test_set = training_set, w_ji = w_ji, w_kj = w_kj, softmax = softmax)
   
-  return(list('y_k' = y_k, 'Error' = Error, 'lambda' = lambda, 'batch_size' = batch_size, 'iterations' = iter, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
+  return(list('y_k' = y_k, 'Error' = Error, 'batch_size' = batch_size, 'iterations' = iter, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
 nnet_weights <- function(min_max = 1, m = 1, n = 1, isGaussian = FALSE) {

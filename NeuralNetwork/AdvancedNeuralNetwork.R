@@ -186,7 +186,7 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   return(list('y_k' = y_k, 'Error' = Error, 'lambda' = lambda, 'iterations' = iter, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
-nnet_stochastic <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, softmax = FALSE, batch_size = NULL) {
+nnet_stochastic <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, softmax = FALSE, batch_size = NULL) {
   # Network training using stochastic gradient descent and batch processing
   
   # determine network dimensions from user input

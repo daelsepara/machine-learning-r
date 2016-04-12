@@ -220,7 +220,7 @@ svm_train <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 	# Save the model
 	idx = which(alphas > 0)
 	model<-list()
-	model$X = X[idx,]
+	model$X = array(X[idx,], c(length(idx), ncol(X)))
 	model$y = Y[idx]
 	model$kernelFunction = kernelFunc
 	model$kernelParam = kernelParam
@@ -321,7 +321,7 @@ svm_boundary <- function(X, y, model) {
 	   vals[, i] = svm_predict(model, this_X)
 	}
 
-	contour(x = x1plot, y = x2plot, z = t(vals), col = 'green', add = TRUE, lw = 1)
+	contour(x = x1plot, y = x2plot, z = t(vals), col = 'green', add = TRUE, lw = 0.5)
 }
 
 svm_plot <- function(X, y) {
@@ -338,6 +338,6 @@ svm_plot <- function(X, y) {
 	neg = which(y == 0)
 
 	# Plot Examples
-	plot(X[pos, 1], X[pos, 2], pch = 3, xlab = '', ylab = '', col = 'blue')
+	plot(X[pos, 1], X[pos, 2], pch = 3, xlab = '', ylab = '', col = 'blue', xlim = c(min(X[, 1]), max(X[, 1])), ylim = c(min(X[, 2]), max(X[, 2])))
 	points(X[neg, 1], X[neg, 2], pch = 19, col = 'red')
 }

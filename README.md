@@ -41,15 +41,16 @@ This is a repository for R scripts developed during my machine learning studies.
 
 ## Neural Network ##
 
-- sigmoid activation and derivative (sigmoid, dsigmoid)
+- sigmoid activation and derivative (nnet_sigmoid, nnet_dsigmoid)
+- softmax activation for multi-class classification/prediction (nnet_softmax)
 - forward and backward propagation (nnet_forward, nnet_backprop)
-- training via gradient descent and stochastic gradient descent (nnet_train)
+- training via gradient descent (nnet_train)
+- training using stochastic gradient descent without regularization (nnet_stochastic)
 - multi-class classification/prediction (nnet_predict)
 - cost function for use with minimization algorithms (nnet_cost)
 - fast gradient descent computation (fmincg)
 - training using fast gradient descent computation (nnet_optimize)
 - training using R's optim function (nnet_minimize)
-- softmax activation for multi-class classification/prediction (nnet_softmax)
 
 ## Support Vector Machines ##
 

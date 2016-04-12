@@ -59,6 +59,9 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
     cost = - sum(log(y_k[which(y_matrix == 1)]))
   }
   
+  J = cost
+  regCost = 0
+  
   # regularization on lambda != 0
   if (lambda != 0) {
     
@@ -69,7 +72,9 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
     rWji[, 1] = array(0, nrow(w_ji))
     rWkj[, 1] = array(0, nrow(w_kj))
     
-    cost = cost + lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
+    regCost = lambda * (sum(rWji ^ 2) + sum(rWkj ^ 2)) / 2
+    
+    cost = cost + regCost
     dWji = dWji + lambda * rWji
     dWkj = dWkj + lambda * rWkj
   }
@@ -80,7 +85,7 @@ nnet_backprop <- function(training_set, y_k, z_2, a_2, w_ji, w_kj, y_matrix, lam
     dWkj = dWkj / m
   }
 
-  return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost))	
+  return(list('dWkj' = dWkj, 'dWji' = dWji, 'Error' = cost, 'J' = J, 'regCost' = regCost))	
 }
 
 nnet_cost <- function(X, P1, P2, P3 , P4, P5, P6, softmax = FALSE) {

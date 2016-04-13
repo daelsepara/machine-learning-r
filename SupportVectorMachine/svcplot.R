@@ -54,17 +54,19 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 		xa = (xmax - xmin)
 		ya = (ymax - ymin)
 		
+		Y[which(Y != 1)] = -1
+		
 		if (!aspect) {
 			if (0.75 * abs(xa) < abs(ya)) {
 				offadd = marg * (ya * 4 / 3 - xa)
 				xmin = xmin - offadd - mag * marg * ya
-				xmax = xmax + offadd + mag * marg *ya
+				xmax = xmax + offadd + mag * marg * ya
 				ymin = ymin - mag * marg * ya
-				ymax = ymax + mag * marg *ya
+				ymax = ymax + mag * marg * ya
 			} else {
 				offadd = marg * (xa * 3/4 - ya)
-				xmin = xmin - mag * marg *xa
-				xmax = xmax + mag * marg *xa
+				xmin = xmin - mag * marg * xa
+				xmax = xmax + mag * marg * xa
 				ymin = ymin - offadd - mag * marg * xa
 				ymax = ymax + offadd + mag * marg * xa
 			}
@@ -83,7 +85,7 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 		# Plot function value
 		x = seq(xmin, xmax, length = gridcellsX)
 		y = seq(ymin, ymax, length = gridcellsY)
-		z = bias * array(1, c(length(y), length(x)))
+		z = bias * array(1, c(length(x), length(y)))
 		
 		for (x1 in 1:length(x)) {
 			for (y1 in 1:length(y)) {
@@ -91,10 +93,10 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 				input[xaxis] = x[x1]
 				input[yaxis] = y[y1]
 				
-				for (i in 1:length(Y)) {
-					if (abs(alpha[i]) >= 0) {
-						z[y1, x1] = z[y1, x1] + Y[i] * alpha[i] * CalcKernel(input, X[i, ], ker, kpar1, kpar2)
-					}
+				idx = which(abs(alpha) > 0)
+					
+				for (i in 1:length(idx)) {
+					z[x1, y1] = z[x1, y1] + Y[idx[i]] * alpha[idx[i]] * CalcKernel(input, X[idx[i], ], ker, kpar1, kpar2)
 				}
 			}
 		}
@@ -104,9 +106,7 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 		#Plot Training points
 		pos = which(Y == 1)
 		neg = which(Y != 1)
-		alp = which(alpha > alpha_threshold)
-		
-		z = t(z)
+		alp = which(abs(alpha) > alpha_threshold)
 		
 		if (color_shade == 1) {
 			plot(x = X[pos, xaxis], y = X[pos, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'red', pch = 4, xlab = '', ylab = '')

@@ -335,7 +335,7 @@ svm_plot <- function(X, y) {
 
 	# Find Indices of Positive and Negative Examples
 	pos = which(y == 1)
-	neg = which(y == 0)
+	neg = which(y != 1)
 
 	# Plot Examples
 	plot(X[pos, 1], X[pos, 2], pch = 3, xlab = '', ylab = '', col = 'blue', xlim = c(min(X[, 1]), max(X[, 1])), ylim = c(min(X[, 2]), max(X[, 2])))

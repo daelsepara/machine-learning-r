@@ -92,6 +92,8 @@ smo2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps, method) {
 	n1 = nrow(Y)
 	D1 = ncol(Y)
 
+	Y[which(Y != 1)] = -1
+	
 	if (D1 != 1) {
 		stop('Error: Class values cannot be vectors but real numbers')
 	}

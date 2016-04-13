@@ -98,9 +98,7 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 				}
 			}
 		}
-		
-		l = (-min(z) + max(z)) / 2.0
-		
+
 		plot.new()
 		
 		#Plot Training points
@@ -111,11 +109,11 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 		z = t(z)
 		
 		if (color_shade == 1) {
-			points(x = X[pos, xaxis], y = X[pos, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'red', pch = 4)
+			plot(x = X[pos, xaxis], y = X[pos, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'red', pch = 4, xlab = '', ylab = '')
 			points(x = X[neg, xaxis], y = X[neg, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'blue', pch = 4)
 			points(x = X[alp, xaxis], y = X[alp, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'black', pch = 1)
 		} else {
-			points(x = X[, xaxis], y = X[, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'black', pch = 4)
+			plot(x = X[, xaxis], y = X[, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'black', pch = 4, xlab = '', ylab = '')
 			points(x = X[alp, xaxis], y = X[alp, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'black', pch = 19)
 		}
 		
@@ -142,4 +140,7 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 			}
 		}
 	}
+	
+	# return contour data
+	return(list('x' = x, 'y' = y, 'z' = z, 'alpha' = alpha, 'alpha_threshold' = alpha_threshold))
 }

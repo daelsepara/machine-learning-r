@@ -58,6 +58,7 @@ This is a repository for R scripts developed during my machine learning studies.
 - decision boundary visualization (svm_plot, svm_boundary)
 - linear, gaussian/rbf, polynomial kernels (linear_kernel, gaussian_kernel, polynomial_kernel)
 - sequential minimal optimization using various kernel functions (smo2, CalcKernel)
+- sequential minimal optimization boundary plotter (svcplot)
 
 ### Supported Kernels in SMO (CalcKernel) ###
 

@@ -125,7 +125,7 @@ smo2 <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps, method) {
 		cat('The algorithm has not converged. This may be due to:\n (a) the maximum number of iterations has been reached and convergence has not, yet, been achieved or \n (b) the chosen values for the hyperparameters (C as well as the parameters that define the kernel function) \n can not lead to a solution. \n')
 	}
 	
-	return(list('alpha' = alpha, 'w' = w, 'b' = b, 'stp' = stp, 'evals' = evals, 'glob' = glob))
+	return(list('alpha' = alpha, 'w' = w, 'b' = as.double(b), 'stp' = stp, 'evals' = evals, 'glob' = glob))
 }
 
 unpack <- function(X) {
@@ -1065,7 +1065,7 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 		k = (u %*% v + kpar1) ^ kpar2
 	} else if (strcmp(ker, 'rbf')) {
 	    for (i in 1:r1) {
-			d = array(u[i, ] - v, c(1, length(v)))
+	      d = array(u[i, ] - v, c(1, length(v)))
   			k[i] = exp(-d %*% t(d)/(2*kpar1^2))
 	    }
 	} else if (strcmp(ker, 'erbf')) {

@@ -74,7 +74,7 @@ svm_train <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 	n = ncol(X)
 
 	# Map 0 to -1
-	Y[which(Y == 0)] = -1
+	Y[which(Y != 1)] = -1
 
 	# Variables
 	alphas = array(0, c(m, 1))
@@ -321,7 +321,7 @@ svm_boundary <- function(X, y, model) {
 	   vals[, i] = svm_predict(model, this_X)
 	}
 
-	contour(x = x1plot, y = x2plot, z = t(vals), col = 'green', add = TRUE, lw = 0.5)
+	contour(x = x1plot, y = x2plot, z = t(vals), col = 'green', add = TRUE, lw = 0.5, drawlabels = FALSE)
 }
 
 svm_plot <- function(X, y) {

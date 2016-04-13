@@ -29,7 +29,7 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 
 	# for meshgrid
 	require(pracma)
-	
+
 	color_shade = 1 # 1:color in figure and shade degradation, else 0:Black and White
 	gridcellsX = 50 # num of grid cells in X-dimension (test:20, presentation:60-80)
 	gridcellsY = 50 # num of grid cells in Y-dimension (test:20, presentation:60-80)
@@ -38,8 +38,6 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 	if (nargs() < 7 | nargs() > 12) { # check correct number of arguments
 		stop('incorrect number of arguments')
 	} else {
-		epsilon = 10^(-5)
-		
 		if (nargs() < 12) input = array(0, c(1, ncol(X)))
 		if (nargs() < 11) yaxis = 2
 		if (nargs() < 10) xaxis = 1
@@ -81,7 +79,7 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 		alpha_max = max(alpha)
 		alpha_threshold = (alpha_max - alpha_min) * 0.01
 		alpha_threshold = alpha_threshold + alpha_min
-		
+
 		# Plot function value
 		x = seq(xmin, xmax, length = gridcellsX)
 		y = seq(ymin, ymax, length = gridcellsY)
@@ -101,8 +99,6 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 			}
 		}
 
-		plot.new()
-		
 		#Plot Training points
 		pos = which(Y == 1)
 		neg = which(Y != 1)
@@ -116,12 +112,12 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 			plot(x = X[, xaxis], y = X[, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'black', pch = 4, xlab = '', ylab = '')
 			points(x = X[alp, xaxis], y = X[alp, yaxis], xlim = c(xmin, xmax), ylim = c(ymin, ymax), col = 'black', pch = 19)
 		}
-		
+	
 		# Plot Boundary contours
 		if (color_shade == 1) {
-			contour(x, y, z, levels = c(0, 0), col = 'black', add = TRUE, lty = 1, drawlabels = FALSE)
-			contour(x, y, z, levels = c(-1, -1), col = 'blue', add = TRUE, lty = 3, drawlabels = FALSE)
-			contour(x, y, z, levels = c(1, 1), col = 'red', add = TRUE, lty = 3, drawlabels = FALSE)
+			contour(x, y, z, levels = c(0, 0), col = 'green', add = TRUE, lty = 1, drawlabels = FALSE, lw = 2)
+			contour(x, y, z, levels = c(-1, -1), col = 'blue', add = TRUE, lty = 3, drawlabels = FALSE, lw = 2)
+			contour(x, y, z, levels = c(1, 1), col = 'red', add = TRUE, lty = 3, drawlabels = FALSE, lw = 2)
 		} else {
 			zones = 1 # how many zones to be present in [0,1]
 			steps = seq(0, 1, by = 1 / zones)
@@ -134,13 +130,10 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 				if (steps[j] == 0) {
 					contour(x, y, z, levels = c(steps[j], steps[j]), col = 'black', lty = clsp, lwd = 2, add = TRUE, drawlabels = FALSE)
 				} else {
-					contour(x, y, z, levels = c(steps[j], steps[j]), col = 'black', lty = clsp, lwd = 1, add = TRUE, drawlabels = FALSE)
-					contour(x, y, z, levels = c(-steps[j], -steps[j]), col = 'black', lty = clsp, lwd = 1, add = TRUE, drawlabels = FALSE)
+					contour(x, y, z, levels = c(steps[j], steps[j]), col = 'black', lty = clsp, lwd = 2, add = TRUE, drawlabels = FALSE)
+					contour(x, y, z, levels = c(-steps[j], -steps[j]), col = 'black', lty = clsp, lwd = 2, add = TRUE, drawlabels = FALSE)
 				}
 			}
 		}
 	}
-	
-	# return contour data
-	return(list('x' = x, 'y' = y, 'z' = z, 'alpha' = alpha, 'alpha_threshold' = alpha_threshold))
 }

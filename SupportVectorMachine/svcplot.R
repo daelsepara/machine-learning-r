@@ -136,4 +136,6 @@ svcplot <- function(X, Y, ker, kpar1, kpar2, alpha, bias, aspect, mag, xaxis, ya
 			}
 		}
 	}
+	
+	return(list('x' = x, 'y' = y, 'z' = z))
 }

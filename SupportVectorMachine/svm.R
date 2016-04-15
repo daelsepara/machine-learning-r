@@ -1,5 +1,5 @@
-polynomial_kernel <- function(x1, x2, kernelParam = c(0, 1)) {
-  #POLYNOMIAL KERNEL 
+svm_polynomial <- function(x1, x2, kernelParam = c(0, 1)) {
+#POLYNOMIAL KERNEL 
   
   # Ensure that x1 and x2 are column vectors
   x1 = array(x1, c(length(x1), 1))
@@ -8,7 +8,7 @@ polynomial_kernel <- function(x1, x2, kernelParam = c(0, 1)) {
   return(((t(x1) %*% x2 + kernelParam[1])^kernelParam[2]))
 }
 
-gaussian_kernel <- function(x1, x2, sigma) {
+svm_gaussian <- function(x1, x2, sigma) {
 #GAUSSIANKERNEL returns a radial basis function kernel between x1 and x2
 #   sim = gaussian_kernel(x1, x2, sigma) returns a gaussian kernel between x1 and x2
 #   and returns the value in sim
@@ -22,7 +22,27 @@ gaussian_kernel <- function(x1, x2, sigma) {
 	return(exp(-sum((x1 - x2)^2)/(2*sigma^2)))
 }
 
-linear_kernel <- function(x1, x2) {
+svm_erbf <- function(x1, x2, sigma) {
+#enhanced/extended Radial basis function kernel
+  
+  # Ensure that x1 and x2 are column vectors
+  x1 = array(x1, c(length(x1), 1))
+  x2 = array(x2, c(length(x2), 1))
+  
+  return(exp(-sqrt(sum((x1 - x2)^2)))/(2 * sigma ^ 2))
+}
+
+svm_sigmoid <- function(x1, x2, kernelParam = c(1, 0)) {
+#SIGMOID KERNEL
+  
+  # Ensure that x1 and x2 are column vectors
+  x1 = array(x1, c(length(x1), 1))
+  x2 = array(x2, c(length(x2), 1))
+
+  tanh(kernelParam[1]*sum(x1 %*% t(x2))/length(x1) + kernelParam[2])
+}
+  
+svm_linear <- function(x1, x2) {
 #LINEARKERNEL returns a linear kernel between x1 and x2
 #   sim = linear_kernel(x1, x2) returns a linear kernel between x1 and x2
 #   and returns the value in sim
@@ -35,6 +55,21 @@ linear_kernel <- function(x1, x2) {
 
 	# Compute the kernel
 	return(t(x1) %*% x2)  # dot product
+}
+
+svm_fourier <- function(x1, x2, kernelParam = 0) {
+#FOURIER KERNEL
+  
+  # Ensure that x1 and x2 are column vectors
+  x1 = array(x1, c(length(x1), 1))
+  x2 = array(x2, c(length(x2), 1))
+  
+  z = sin(kernelParam + 1 / 2) * 2 * array(1, c(length(x1), 1))
+  d = x1 - x2
+  j = which(d != 0.0)
+  z[j] = sin(kernelParam + 1 / 2) * d[j] / sin(d[j] / 2)
+  
+  return(prod(z))
 }
 
 svm_train <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {

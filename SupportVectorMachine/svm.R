@@ -218,7 +218,7 @@ svm_train <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 	cat(' Done!\n')
 
 	# Save the model
-	idx = which(alphas > 0)
+	idx = which(abs(alphas) > 0)
 	model<-list()
 	model$X = array(X[idx,], c(length(idx), ncol(X)))
 	model$y = Y[idx]
@@ -274,7 +274,7 @@ svm_predict <- function(model, X) {
 		K = kernelFunction(1, 0, model$kernelParam)^K
 		K = bsxfun('*', repmat(t(model$y), rows, 1), K)
 		K = bsxfun('*', repmat(t(model$alphas), rows, 1), K)
-		p = rowSums(K)
+		p = rowSums(K) + model$b
 	} else {
 		# Other Non-linear kernel
 		for (i in 1:m) {
@@ -287,10 +287,10 @@ svm_predict <- function(model, X) {
 	}
 
 	# Convert predictions into 0 / 1
-	pred[p >= 0] =  1
-	pred[p <  0] =  0
+	pred[p > 0] =  1
+	pred[p <  0] =  -1
 	
-	return(pred)
+	return(list('p' = p, 'predictions' = pred))
 }
 
 svm_boundary <- function(X, y, model) {
@@ -315,13 +315,22 @@ svm_boundary <- function(X, y, model) {
 	X2 = xgrid$Y
 
 	vals = array(0, dim(X1))
-
+	pred = array(0, dim(X1))
+	
 	for (i in 1:ncol(X1)) {
 	   this_X = cbind(X1[,i], X2[,i])
-	   vals[, i] = svm_predict(model, this_X)
+	   vals[, i] = svm_predict(model, this_X)$p
+	   pred[, i] = svm_predict(model, this_X)$pred
 	}
 
-	contour(x = x1plot, y = x2plot, z = t(vals), col = 'green', add = TRUE, lw = 0.5, drawlabels = FALSE)
+	z = t(vals)
+	p = t(pred)
+	
+	contour(x = x1plot, y = x2plot, z = z, col = 'green', levels = c(0,0), add = TRUE, lw = 0.5, lty = 1, drawlabels = FALSE)
+	contour(x = x1plot, y = x2plot, z = z, col = 'blue', levels = c(1,1), add = TRUE, lw = 0.5, lty = 3, drawlabels = FALSE)
+	contour(x = x1plot, y = x2plot, z = z, col = 'red', levels = c(-1,-1), add = TRUE, lw = 0.5, lty = 3, drawlabels = FALSE)
+
+	return(list('x' = as.vector(x1plot), 'y' = as.vector(x2plot), 'z' = z, 'p' = p))	
 }
 
 svm_plot <- function(X, y) {

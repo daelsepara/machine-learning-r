@@ -26,10 +26,10 @@ svm_erbf <- function(x1, x2, sigma) {
 #enhanced/extended Radial basis function kernel
   
   # Ensure that x1 and x2 are column vectors
-  x1 = array(x1, c(length(x1), 1))
-  x2 = array(x2, c(length(x2), 1))
-  
-  return(exp(-sqrt(sum((x1 - x2)^2)))/(2 * sigma ^ 2))
+  x1 = array(x1, c(1, length(x1)))
+  x2 = array(x2, c(1, length(x2)))
+  d = x1 - x2
+  return(exp(-sqrt(d %*% t(d)))/(2 * sigma ^ 2))
 }
 
 svm_sigmoid <- function(x1, x2, kernelParam = c(1, 0)) {

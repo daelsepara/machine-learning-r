@@ -83,3 +83,31 @@ nnet_pool <- function(img_, window_, steps_) {
     
   }
 }
+
+# zero-padding function
+nnet_pad <- function(img_, padsize = 0) {
+  
+  if (padsize >= 0) {
+    
+    if (padsize > 0) {
+      
+      # zero pad columns
+      conv_c = cbind(array(0, c(nrow(img_), padsize)), img, array(0, c(nrow(img_), padsize)))
+      
+      # zero pad rows
+      conv_r = rbind(array(0, c(padsize, ncol(conv_c))), conv_c, array(0, c(padsize, ncol(conv_c))))
+      
+      return(conv_r)
+      
+    } else {
+      
+      return(img_)
+      
+    }
+    
+  } else {
+    
+    stop('padsize must be >= 0')
+    
+  }
+}

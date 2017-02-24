@@ -1,5 +1,5 @@
 # convolution layer, can also add a rectified linear unit layer after convolution
-nnet_conv <- function(img_, filter_, rectify = FALSE) {
+nnet_conv <- function(img_, filter_, rectify = FALSE, normalize = TRUE) {
   
   ix_ = ncol(img_)
   iy_ = nrow(img_)
@@ -13,7 +13,12 @@ nnet_conv <- function(img_, filter_, rectify = FALSE) {
     cols_ = ix_ - fx_ + 1
     
     result_ = array(0, c(rows_, cols_))
-    norm_ =  (fx_ * fy_)
+    
+    if (normalize) {
+      norm_ =  (fx_ * fy_)
+    } else {
+      norm_ = 1
+    }
     
     for (y_ in 1:rows_) {
       for (x_ in 1:cols_) {
@@ -93,7 +98,7 @@ nnet_pad <- function(img_, padsize = 0) {
     if (padsize > 0) {
       
       # zero pad columns
-      conv_c = cbind(array(0, c(nrow(img_), padsize)), img, array(0, c(nrow(img_), padsize)))
+      conv_c = cbind(array(0, c(nrow(img_), padsize)), img_, array(0, c(nrow(img_), padsize)))
       
       # zero pad rows
       conv_r = rbind(array(0, c(padsize, ncol(conv_c))), conv_c, array(0, c(padsize, ncol(conv_c))))

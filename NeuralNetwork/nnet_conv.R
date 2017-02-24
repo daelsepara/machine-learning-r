@@ -13,11 +13,12 @@ nnet_conv <- function(img_, filter_, rectify = FALSE) {
     cols_ = ix_ - fx_ + 1
     
     result_ = array(0, c(rows_, cols_))
+    norm_ =  (fx_ * fy_)
     
     for (y_ in 1:rows_) {
       for (x_ in 1:cols_) {
         
-        result_[y_, x_] = sum(img_[y_:(y_ + fy_ - 1), x_:(x_ + fx_ - 1)] * filter_[1:fy_, 1:fx_]) / (fx_ * fy_)
+        result_[y_, x_] = sum(img_[y_:(y_ + fy_ - 1), x_:(x_ + fx_ - 1)] * filter_[1:fy_, 1:fx_]) / norm_
         
       }
     }

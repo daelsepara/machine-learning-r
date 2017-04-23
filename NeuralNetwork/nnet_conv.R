@@ -1,47 +1,60 @@
 # convolution layer, can also add a rectified linear unit layer after convolution
-nnet_conv <- function(img_, filter_, rectify = FALSE, normalize = TRUE) {
-  
-  ix_ = ncol(img_)
-  iy_ = nrow(img_)
-  
-  fx_ = ncol(filter_)
-  fy_ = nrow(filter_)
-  
-  if (iy_ >= fy_ && ix_ >= fx_) {
-
-    rows_ = iy_ - fy_ + 1
-    cols_ = ix_ - fx_ + 1
-    
-    result_ = array(0, c(rows_, cols_))
-    
-    if (normalize) {
-      norm_ =  (fx_ * fy_)
-    } else {
-      norm_ = 1
-    }
-    
-    for (y_ in 1:rows_) {
-      for (x_ in 1:cols_) {
-        
-        result_[y_, x_] = sum(img_[y_:(y_ + fy_ - 1), x_:(x_ + fx_ - 1)] * filter_[1:fy_, 1:fx_]) / norm_
-        
-      }
-    }
-    
-    # check if RLU's are needed
-    if (rectify) {
-      
-      result_[which(result_ < 0)] = 0
-      
-    }
-    
-    return(result_)
-    
-  } else {
-    
-    stop('input and filter dimensions are incompatible')
-    
-  }
+nnet_conv <- function(img_, filter_, shape = "full") {
+	
+	# input dimensions
+	ix_ = ncol(img_)
+	iy_ = nrow(img_)
+	
+	# filter dimension
+	fx_ = ncol(filter_)
+	fy_ = nrow(filter_)
+	
+	# convolution dimensions
+	cx_ = ix_ + fx_ - 1;
+	cy_ = iy_ + fy_ - 1;
+	
+	rx_ = cx_;
+	ry_ = cy_;
+	
+	offset = 0;
+	
+	if (shape == "valid") {
+		
+		rx_ = ix_ - fx_ + 1;
+		ry_ = iy_ - fy_ + 1;
+		
+		offset = 1;
+		
+	} else if (shape == "same") {
+		
+		rx_ = ix_;
+		ry_ = iy_;
+		
+		offset = 1;
+	}
+	
+	if (iy_ >= fy_ && ix_ >= fx_) {
+		
+		result_ = array(0, c(ry_, rx_))
+		
+		for (cj in 1:(cy_ + 1)) {
+			for (ci in 1:(cx_ + 1)) {
+				for (ky in 1:iy_) {
+					for (kx in 1:ix_) {
+						if (ci - offset - 1 > 0 && ci - offset - 1 <= rx_ && cj - offset - 1 > 0 && cj - offset - 1 <= ry_ && ci - kx > 0 && ci - kx <= fx_ && cj - ky > 0 && cj - ky <= fy_) {
+							result_[cj - offset - 1, ci - offset - 1] = result_[cj - offset - 1, ci - offset - 1] + img_[ky, kx] * filter_[cj - ky, ci - kx];
+						}
+					}
+				}
+			}
+		}
+		
+		return(result_)
+	
+	} else {
+		
+		stop('input and filter dimensions are incompatible')
+	}
 }
 
 # pooling layer

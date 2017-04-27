@@ -4,12 +4,12 @@ require(pracma)
 nnet_conv <- function(input, feature, shape = "full") {
 	
 	# input dimensions
-	ix = ncol(input)
-	iy = nrow(input)
+	ix = dim[input][2]
+	iy = dim[input][1]
 	
 	# filter dimension
-	fx = ncol(feature)
-	fy = nrow(feature)
+	fx = dim[feature][2]
+	fy = dim[feature][1]
 	
 	# convolution dimensions
 	cx = ix + fx - 1

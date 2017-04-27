@@ -1,5 +1,7 @@
-# convolution layer, can also add a rectified linear unit layer after convolution
-nnet_conv <- function(input, feature, shape = "full") {
+require(pracma)
+
+# convolution layer
+convn <- function(input, feature, shape = "full") {
 	
 	# input dimensions
 	ix = ncol(input)
@@ -7,33 +9,16 @@ nnet_conv <- function(input, feature, shape = "full") {
 	
 	# filter dimension
 	fx = ncol(feature)
-	fx = nrow(feature)
+	fy = nrow(feature)
 	
 	# convolution dimensions
-	cx = ix + fx - 1;
-	cy = iy + fx - 1;
+	cx = ix + fx - 1
+	cy = iy + fy - 1
 	
-	rx = cx;
-	ry = cy;
+	rx = cx
+	ry = cy
 	
-	offset = 0;
-	
-	if (shape == "valid") {
-		
-		rx = ix - fx + 1;
-		ry = iy - fx + 1;
-		
-		offset = 1;
-		
-	} else if (shape == "same") {
-		
-		rx = ix;
-		ry = iy;
-		
-		offset = 1;
-	}
-	
-	if (iy >= fx && ix >= fx) {
+	if (iy >= fy && ix >= fx) {
 		
 		result = array(0, c(ry, rx))
 		
@@ -41,12 +26,21 @@ nnet_conv <- function(input, feature, shape = "full") {
 			for (ci in 1:(cx + 1)) {
 				for (ky in 1:iy) {
 					for (kx in 1:ix) {
-						if (ci - offset - 1 > 0 && ci - offset - 1 <= rx && cj - offset - 1 > 0 && cj - offset - 1 <= ry && ci - kx > 0 && ci - kx <= fx && cj - ky > 0 && cj - ky <= fx) {
-							result[cj - offset - 1, ci - offset - 1] = result[cj - offset - 1, ci - offset - 1] + input[ky, kx] * feature[cj - ky, ci - kx];
+						if (ci - 1 > 0 && ci - 1 <= rx && cj - 1 > 0 && cj - 1 <= ry && ci - kx > 0 && ci - kx <= fx && cj - ky > 0 && cj - ky <= fy) {
+							result[cj - 1, ci - 1] = result[cj - 1, ci - 1] + input[ky, kx] * feature[cj - ky, ci - kx]
 						}
 					}
 				}
 			}
+		}
+		
+		if (shape == "valid") {
+		
+			result = result[fy:(cy - fy + 1), fx:(cx - fx + 1)]
+		
+		} else if (shape == "same") {
+		
+			result = result[2:ry, 2:rx]
 		}
 		
 		return(drop(result))
@@ -58,7 +52,7 @@ nnet_conv <- function(input, feature, shape = "full") {
 }
 
 # convolution layer
-nnet_conv3 <- function(input, feature, shape = "full") {
+convn3 <- function(input, feature, shape = "full") {
 	
 	# input dimensions
 	ix = dim(input)[2]
@@ -71,32 +65,13 @@ nnet_conv3 <- function(input, feature, shape = "full") {
 	fz = dim(feature)[3]
 	
 	# convolution dimensions
-	cx = ix + fx - 1;
-	cy = iy + fy - 1;
-	cz = iz + fz - 1;
+	cx = ix + fx - 1
+	cy = iy + fy - 1
+	cz = iz + fz - 1
 	
-	rx = cx;
-	ry = cy;
-	rz = cz;
-	
-	offset = 0;
-	
-	if (shape == "valid") {
-		
-		rx = ix - fx + 1;
-		ry = iy - fy + 1;
-		rz = iz - fz + 1;
-		
-		offset = 1;
-		
-	} else if (shape == "same") {
-		
-		rx = ix;
-		ry = iy;
-		rz = iz;
-		
-		offset = 1;
-	}
+	rx = cx
+	ry = cy
+	rz = cz
 	
 	if (iy >= fy && ix >= fx && iz >= fz) {
 		
@@ -108,15 +83,23 @@ nnet_conv3 <- function(input, feature, shape = "full") {
 					for (kz in 1:iz) {
 						for (ky in 1:iy) {
 							for (kx in 1:ix) {
-								if ((ci - offset - 1) > 0 && (ci - offset - 1) <= rx && (cj - offset - 1) > 0 && (cj - offset - 1) <= ry && (ck - 1) > 0 && (ck - 1) <= rz && (ci - kx) > 0 && (ci - kx) <= fx && (cj - ky) > 0 && (cj - ky) <= fy && (ck - kz) > 0 && (ck - kz) <= fz) {
-									print(paste0(' ci=',ci,' cj=',cj,' ck=',ck,' kx=',kx,' ky=',ky,' kz=',kz,' ci-kx=',ci-kx,' cj-ky=',cj-ky,' ck-kz=',ck-kz))
-									result[cj - offset - 1, ci - offset - 1, ck - 1] = result[cj - offset - 1, ci - offset - 1, ck - 1] + input[ky, kx, kz] * feature[cj - ky, ci - kx, ck - kz];
+								if ((ci - 1) > 0 && (ci - 1) <= rx && (cj - 1) > 0 && (cj - 1) <= ry && (ck - 1) > 0 && (ck - 1) <= rz && (ci - kx) > 0 && (ci - kx) <= fx && (cj - ky) > 0 && (cj - ky) <= fy && (ck - kz) > 0 && (ck - kz) <= fz) {
+									result[cj - 1, ci - 1, ck - 1] = result[cj - 1, ci - 1, ck -  1] + input[ky, kx, kz] * feature[cj - ky, ci - kx, ck - kz]
 								}
 							}
 						}
 					}
 				}
 			}
+		}
+		
+		if (shape == "valid") {
+		
+			result = result[fy:(cy - fy + 1), fx:(cx - fx + 1), fz:(cz - fz + 1)]
+		
+		} else if (shape == "same") {
+		
+			result = result[2:ry, 2:rx, 1:rz]
 		}
 		
 		return(drop(result))

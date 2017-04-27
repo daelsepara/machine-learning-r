@@ -128,39 +128,39 @@ nnet_conv3 <- function(input, feature, shape = "full") {
 }
 
 # pooling layer
-nnet_pool <- function(input, window_, steps_) {
+nnet_pool <- function(input, poolwindow, steps_) {
   
   ix = ncol(input)
   iy = nrow(input)
   
-  if (ix >= window_ && iy >= window_) {
+  if (ix >= poolwindow && iy >= poolwindow) {
     
-    colseq_ = seq(1, ix, window_)
-    rowseq_ = seq(1, iy, window_)
+    colseq = seq(1, ix, poolwindow)
+    rowseq = seq(1, iy, poolwindow)
     
-    cols_ = length(colseq_)
-    rows_ = length(rowseq_)
+    cols = length(colseq)
+    rows = length(rowseq)
     
-    result = array(0, c(rows_, cols_))
+    result = array(0, c(rows, cols))
     
-    for (y_ in 1:rows_) {
-      for(x_ in 1:cols_) {
+    for (y in 1:rows) {
+      for(x in 1:cols) {
         
-        col_ = colseq_[x_]
-        row_ = rowseq_[y_]
+        col = colseq[x]
+        row = rowseq[y]
         
-        px_ = col_ + window_ - 1
-        py_ = row_ + window_ - 1
+        px = col + poolwindow - 1
+        py = row + poolwindow - 1
         
-        if (px_ > ix) {
-          px_ = ix  
+        if (px > ix) {
+          px = ix  
         }
         
-        if (py_ > iy) {
-          py_ = iy  
+        if (py > iy) {
+          py = iy  
         }
         
-        result[y_, x_] = max(input[row_:py_, col_:px_])
+        result[y, x] = max(input[row:py, col:px])
       }
     }
     

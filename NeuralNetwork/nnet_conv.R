@@ -40,7 +40,7 @@ nnet_conv <- function(input, feature, shape = "full") {
 		
 		} else if (shape == "same") {
 		
-			result = result[2:ry, 2:rx]
+			result = result[fy:ry, fx:rx]
 		}
 		
 		return(drop(result))
@@ -99,7 +99,7 @@ nnet_conv3 <- function(input, feature, shape = "full") {
 		
 		} else if (shape == "same") {
 		
-			result = result[2:ry, 2:rx, 1:rz]
+			result = result[fy:ry, fy:rx, fz:rz]
 		}
 		
 		return(drop(result))

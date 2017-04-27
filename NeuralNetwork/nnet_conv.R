@@ -1,7 +1,7 @@
 require(pracma)
 
 # convolution layer
-convn <- function(input, feature, shape = "full") {
+nnet_conv <- function(input, feature, shape = "full") {
 	
 	# input dimensions
 	ix = ncol(input)
@@ -52,7 +52,7 @@ convn <- function(input, feature, shape = "full") {
 }
 
 # convolution layer
-convn3 <- function(input, feature, shape = "full") {
+nnet_conv3 <- function(input, feature, shape = "full") {
 	
 	# input dimensions
 	ix = dim(input)[2]

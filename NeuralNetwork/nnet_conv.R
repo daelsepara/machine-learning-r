@@ -1,108 +1,55 @@
-require(pracma)
-
-# convolution layer
-nnet_conv <- function(input, feature, shape = "full") {
+# convolution layer, can also add a rectified linear unit layer after convolution
+nnet_conv <- function(img_, filter_, shape = "full") {
 	
 	# input dimensions
-	ix = dim[input][2]
-	iy = dim[input][1]
+	ix_ = ncol(img_)
+	iy_ = nrow(img_)
 	
 	# filter dimension
-	fx = dim[feature][2]
-	fy = dim[feature][1]
+	fx_ = ncol(filter_)
+	fy_ = nrow(filter_)
 	
 	# convolution dimensions
-	cx = ix + fx - 1
-	cy = iy + fy - 1
+	cx_ = ix_ + fx_ - 1;
+	cy_ = iy_ + fy_ - 1;
 	
-	rx = cx
-	ry = cy
+	rx_ = cx_;
+	ry_ = cy_;
 	
-	if (iy >= fy && ix >= fx) {
-		
-		result = array(0, c(ry, rx))
-		
-		for (cj in 1:(cy + 1)) {
-			for (ci in 1:(cx + 1)) {
-				for (ky in 1:iy) {
-					for (kx in 1:ix) {
-						if (ci - 1 > 0 && ci - 1 <= rx && cj - 1 > 0 && cj - 1 <= ry && ci - kx > 0 && ci - kx <= fx && cj - ky > 0 && cj - ky <= fy) {
-							result[cj - 1, ci - 1] = result[cj - 1, ci - 1] + input[ky, kx] * feature[cj - ky, ci - kx]
-						}
-					}
-				}
-			}
-		}
-		
-		if (shape == "valid") {
-		
-			result = result[fy:(cy - fy + 1), fx:(cx - fx + 1)]
-		
-		} else if (shape == "same") {
-		
-			result = result[fy:ry, fx:rx]
-		}
-		
-		return(drop(result))
+	offset = 0;
 	
-	} else {
+	if (shape == "valid") {
 		
-		stop('input and filter dimensions are incompatible')
+		rx_ = ix_ - fx_ + 1;
+		ry_ = iy_ - fy_ + 1;
+		
+		offset = 1;
+		
+	} else if (shape == "same") {
+		
+		rx_ = ix_;
+		ry_ = iy_;
+		
+		offset = 1;
 	}
-}
-
-# convolution layer
-nnet_conv3 <- function(input, feature, shape = "full") {
 	
-	# input dimensions
-	ix = dim(input)[2]
-	iy = dim(input)[1]
-	iz = dim(input)[3]
-	
-	# filter dimension
-	fx = dim(feature)[2]
-	fy = dim(feature)[1]
-	fz = dim(feature)[3]
-	
-	# convolution dimensions
-	cx = ix + fx - 1
-	cy = iy + fy - 1
-	cz = iz + fz - 1
-	
-	rx = cx
-	ry = cy
-	rz = cz
-	
-	if (iy >= fy && ix >= fx && iz >= fz) {
+	if (iy_ >= fy_ && ix_ >= fx_) {
 		
-		result = array(0, c(ry, rx, rz))
+		result_ = array(0, c(ry_, rx_))
 		
-		for (ck in 0:(cz + 1)) {
-			for (cj in 1:(cy + 1)) {
-				for (ci in 1:(cx + 1)) {
-					for (kz in 1:iz) {
-						for (ky in 1:iy) {
-							for (kx in 1:ix) {
-								if ((ci - 1) > 0 && (ci - 1) <= rx && (cj - 1) > 0 && (cj - 1) <= ry && (ck - 1) > 0 && (ck - 1) <= rz && (ci - kx) > 0 && (ci - kx) <= fx && (cj - ky) > 0 && (cj - ky) <= fy && (ck - kz) > 0 && (ck - kz) <= fz) {
-									result[cj - 1, ci - 1, ck - 1] = result[cj - 1, ci - 1, ck -  1] + input[ky, kx, kz] * feature[cj - ky, ci - kx, ck - kz]
-								}
-							}
+		for (cj in 1:(cy_ + 1)) {
+			for (ci in 1:(cx_ + 1)) {
+				for (ky in 1:iy_) {
+					for (kx in 1:ix_) {
+						if (ci - offset - 1 > 0 && ci - offset - 1 <= rx_ && cj - offset - 1 > 0 && cj - offset - 1 <= ry_ && ci - kx > 0 && ci - kx <= fx_ && cj - ky > 0 && cj - ky <= fy_) {
+							result_[cj - offset - 1, ci - offset - 1] = result_[cj - offset - 1, ci - offset - 1] + img_[ky, kx] * filter_[cj - ky, ci - kx];
 						}
 					}
 				}
 			}
 		}
 		
-		if (shape == "valid") {
-		
-			result = result[fy:(cy - fy + 1), fx:(cx - fx + 1), fz:(cz - fz + 1)]
-		
-		} else if (shape == "same") {
-		
-			result = result[fy:ry, fy:rx, fz:rz]
-		}
-		
-		return(drop(result))
+		return(result_)
 	
 	} else {
 		
@@ -111,43 +58,43 @@ nnet_conv3 <- function(input, feature, shape = "full") {
 }
 
 # pooling layer
-nnet_pool <- function(input, poolwindow, steps_) {
+nnet_pool <- function(img_, window_, steps_) {
   
-  ix = ncol(input)
-  iy = nrow(input)
+  ix_ = ncol(img_)
+  iy_ = nrow(img_)
   
-  if (ix >= poolwindow && iy >= poolwindow) {
+  if (ix_ >= window_ && iy_ >= window_) {
     
-    colseq = seq(1, ix, poolwindow)
-    rowseq = seq(1, iy, poolwindow)
+    colseq_ = seq(1, ix_, window_)
+    rowseq_ = seq(1, iy_, window_)
     
-    cols = length(colseq)
-    rows = length(rowseq)
+    cols_ = length(colseq_)
+    rows_ = length(rowseq_)
     
-    result = array(0, c(rows, cols))
+    result_ = array(0, c(rows_, cols_))
     
-    for (y in 1:rows) {
-      for(x in 1:cols) {
+    for (y_ in 1:rows_) {
+      for(x_ in 1:cols_) {
         
-        col = colseq[x]
-        row = rowseq[y]
+        col_ = colseq_[x_]
+        row_ = rowseq_[y_]
         
-        px = col + poolwindow - 1
-        py = row + poolwindow - 1
+        px_ = col_ + window_ - 1
+        py_ = row_ + window_ - 1
         
-        if (px > ix) {
-          px = ix  
+        if (px_ > ix_) {
+          px_ = ix_  
         }
         
-        if (py > iy) {
-          py = iy  
+        if (py_ > iy_) {
+          py_ = iy_  
         }
         
-        result[y, x] = max(input[row:py, col:px])
+        result_[y_, x_] = max(img_[row_:py_, col_:px_])
       }
     }
     
-    return(result)
+    return(result_)
 
   } else {
     
@@ -170,14 +117,14 @@ nnet_expand <- function(A, SZ, scale = 1.0)
 }
 
 # zero-padding function
-nnet_pad <- function(input, padsize = 0) {
+nnet_pad <- function(img_, padsize = 0) {
   
   if (padsize >= 0) {
     
     if (padsize > 0) {
       
       # zero pad columns
-      conv_c = cbind(array(0, c(nrow(input), padsize)), input, array(0, c(nrow(input), padsize)))
+      conv_c = cbind(array(0, c(nrow(img_), padsize)), img_, array(0, c(nrow(img_), padsize)))
       
       # zero pad rows
       conv_r = rbind(array(0, c(padsize, ncol(conv_c))), conv_c, array(0, c(padsize, ncol(conv_c))))
@@ -186,7 +133,7 @@ nnet_pad <- function(input, padsize = 0) {
       
     } else {
       
-      return(drop(result))
+      return(img_)
       
     }
     

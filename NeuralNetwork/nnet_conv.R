@@ -156,6 +156,19 @@ nnet_pool <- function(input, poolwindow, steps_) {
   }
 }
 
+nnet_expand <- function(A, SZ, scale = 1.0)
+{
+  if (length(size(A) == length(SZ))) {
+    
+    return (scale * repmat(A, SZ[1], SZ[2]))
+    
+  } else {
+    
+    stop('Length of size vector must equal ndims(A)')
+    
+  }
+}
+
 # zero-padding function
 nnet_pad <- function(input, padsize = 0) {
   

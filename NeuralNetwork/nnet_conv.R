@@ -104,39 +104,39 @@ nnet_conv3 <- function(input, feature, shape = "full") {
 }
 
 # pooling layer
-nnet_pool <- function(img_, window_, steps_) {
+nnet_pool <- function(input, feature, steps_) {
   
-  ix_ = ncol(img_)
-  iy_ = nrow(img_)
+  ix = dim(input)[2]
+  iy = dim(input)[1]
   
-  if (ix_ >= window_ && iy_ >= window_) {
+  if (ix >= feature && iy >= feature) {
     
-    colseq_ = seq(1, ix_, window_)
-    rowseq_ = seq(1, iy_, window_)
+    colseq = seq(1, ix, feature)
+    rowseq = seq(1, iy, feature)
     
-    cols_ = length(colseq_)
-    rows_ = length(rowseq_)
+    cols = length(colseq)
+    rows = length(rowseq)
     
-    result_ = array(0, c(rows_, cols_))
+    result_ = array(0, c(rows, cols))
     
-    for (y_ in 1:rows_) {
-      for(x_ in 1:cols_) {
+    for (y in 1:rows) {
+      for(x in 1:cols) {
         
-        col_ = colseq_[x_]
-        row_ = rowseq_[y_]
+        col = colseq[x]
+        row = rowseq[y]
         
-        px_ = col_ + window_ - 1
-        py_ = row_ + window_ - 1
+        px = col + feature - 1
+        py = row + feature - 1
         
-        if (px_ > ix_) {
-          px_ = ix_  
+        if (px > ix) {
+          px = ix  
         }
         
-        if (py_ > iy_) {
-          py_ = iy_  
+        if (py > iy) {
+          py = iy  
         }
         
-        result_[y_, x_] = max(img_[row_:py_, col_:px_])
+        result_[y, x] = max(input[row:py, col:px])
       }
     }
     
@@ -151,7 +151,7 @@ nnet_pool <- function(img_, window_, steps_) {
 
 nnet_expand <- function(A, SZ, scale = 1.0)
 {
-  if (length(size(A) == length(SZ))) {
+  if (length(dim(A) == length(SZ))) {
     
     return (scale * repmat(A, SZ[1], SZ[2]))
     
@@ -163,14 +163,14 @@ nnet_expand <- function(A, SZ, scale = 1.0)
 }
 
 # zero-padding function
-nnet_pad <- function(img_, padsize = 0) {
+nnet_pad <- function(input, padsize = 0) {
   
   if (padsize >= 0) {
     
     if (padsize > 0) {
       
       # zero pad columns
-      conv_c = cbind(array(0, c(nrow(img_), padsize)), img_, array(0, c(nrow(img_), padsize)))
+      conv_c = cbind(array(0, c(dim(input)[1], padsize)), input, array(0, c(dim(input)[1], padsize)))
       
       # zero pad rows
       conv_r = rbind(array(0, c(padsize, ncol(conv_c))), conv_c, array(0, c(padsize, ncol(conv_c))))
@@ -179,7 +179,7 @@ nnet_pad <- function(img_, padsize = 0) {
       
     } else {
       
-      return(img_)
+      return(input)
       
     }
     

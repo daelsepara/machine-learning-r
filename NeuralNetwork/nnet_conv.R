@@ -1,55 +1,101 @@
-# convolution layer, can also add a rectified linear unit layer after convolution
-nnet_conv <- function(img_, filter_, shape = "full") {
+require(pracma)
+
+# convolution layer
+nnet_conv <- function(input, feature, shape = "full") {
 	
 	# input dimensions
-	ix_ = ncol(img_)
-	iy_ = nrow(img_)
+	ix = dim(input)[2]
+	iy = dim(input)[1]
 	
 	# filter dimension
-	fx_ = ncol(filter_)
-	fy_ = nrow(filter_)
+	fx = dim(feature)[2]
+	fy = dim(feature)[1]
 	
 	# convolution dimensions
-	cx_ = ix_ + fx_ - 1;
-	cy_ = iy_ + fy_ - 1;
+	cx = ix + fx - 1
+	cy = iy + fy - 1
 	
-	rx_ = cx_;
-	ry_ = cy_;
-	
-	offset = 0;
-	
-	if (shape == "valid") {
+	if (iy >= fy && ix >= fx) {
 		
-		rx_ = ix_ - fx_ + 1;
-		ry_ = iy_ - fy_ + 1;
+		result = array(0, c(cy, cx))
 		
-		offset = 1;
-		
-	} else if (shape == "same") {
-		
-		rx_ = ix_;
-		ry_ = iy_;
-		
-		offset = 1;
-	}
-	
-	if (iy_ >= fy_ && ix_ >= fx_) {
-		
-		result_ = array(0, c(ry_, rx_))
-		
-		for (cj in 1:(cy_ + 1)) {
-			for (ci in 1:(cx_ + 1)) {
-				for (ky in 1:iy_) {
-					for (kx in 1:ix_) {
-						if (ci - offset - 1 > 0 && ci - offset - 1 <= rx_ && cj - offset - 1 > 0 && cj - offset - 1 <= ry_ && ci - kx > 0 && ci - kx <= fx_ && cj - ky > 0 && cj - ky <= fy_) {
-							result_[cj - offset - 1, ci - offset - 1] = result_[cj - offset - 1, ci - offset - 1] + img_[ky, kx] * filter_[cj - ky, ci - kx];
+		for (cj in 1:(cy + 1)) {
+			for (ci in 1:(cx + 1)) {
+				for (ky in 1:iy) {
+					for (kx in 1:ix) {
+						if (ci - 1 > 0 && ci - 1 <= cx && cj - 1 > 0 && cj - 1 <= cy && ci - kx > 0 && ci - kx <= fx && cj - ky > 0 && cj - ky <= fy) {
+							result[cj - 1, ci - 1] = result[cj - 1, ci - 1] + input[ky, kx] * feature[cj - ky, ci - kx]
 						}
 					}
 				}
 			}
 		}
 		
-		return(result_)
+		if (shape == "valid") {
+		
+			result = result[fy:(cy - fy + 1), fx:(cx - fx + 1)]
+		
+		} else if (shape == "same") {
+		
+			result = result[fy:cy, fx:cx]
+		}
+		
+		return(drop(result))
+	
+	} else {
+		
+		stop('input and filter dimensions are incompatible')
+	}
+}
+
+# convolution layer
+nnet_conv3 <- function(input, feature, shape = "full") {
+	
+	# input dimensions
+	ix = dim(input)[2]
+	iy = dim(input)[1]
+	iz = dim(input)[3]
+	
+	# filter dimension
+	fx = dim(feature)[2]
+	fy = dim(feature)[1]
+	fz = dim(feature)[3]
+	
+	# convolution dimensions
+	cx = ix + fx - 1
+	cy = iy + fy - 1
+	cz = iz + fz - 1
+	
+	if (iy >= fy && ix >= fx && iz >= fz) {
+		
+		result = array(0, c(cy, cx, cz))
+		
+		for (ck in 0:(cz + 1)) {
+			for (cj in 1:(cy + 1)) {
+				for (ci in 1:(cx + 1)) {
+					for (kz in 1:iz) {
+						for (ky in 1:iy) {
+							for (kx in 1:ix) {
+								if ((ci - 1) > 0 && (ci - 1) <= cx && (cj - 1) > 0 && (cj - 1) <= cy && (ck - 1) > 0 && (ck - 1) <= cz && (ci - kx) > 0 && (ci - kx) <= fx && (cj - ky) > 0 && (cj - ky) <= fy && (ck - kz) > 0 && (ck - kz) <= fz) {
+									result[cj - 1, ci - 1, ck - 1] = result[cj - 1, ci - 1, ck -  1] + input[ky, kx, kz] * feature[cj - ky, ci - kx, ck - kz]
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		if (shape == "valid") {
+		
+			result = result[fy:(cy - fy + 1), fx:(cx - fx + 1), fz:(cz - fz + 1)]
+		
+		} else if (shape == "same") {
+		
+			result = result[fy:cy, fy:cx, fz:cz]
+		}
+		
+		return(drop(result))
 	
 	} else {
 		

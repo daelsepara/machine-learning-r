@@ -19,11 +19,11 @@ nnet_conv <- function(input, feature, shape = "full") {
 		
 		result = array(0, c(cy, cx))
 		
-		for (cj in 1:(cy + 1)) {
-			for (ci in 1:(cx + 1)) {
+		for (cj in 2:(cy + 1)) {
+			for (ci in 2:(cx + 1)) {
 				for (ky in 1:iy) {
 					for (kx in 1:ix) {
-						if (ci - 1 > 0 && ci - 1 <= cx && cj - 1 > 0 && cj - 1 <= cy && ci - kx > 0 && ci - kx <= fx && cj - ky > 0 && cj - ky <= fy) {
+						if (ci - kx > 0 && ci - kx <= fx && cj - ky > 0 && cj - ky <= fy) {
 							result[cj - 1, ci - 1] = result[cj - 1, ci - 1] + input[ky, kx] * feature[cj - ky, ci - kx]
 						}
 					}
@@ -37,7 +37,10 @@ nnet_conv <- function(input, feature, shape = "full") {
 		
 		} else if (shape == "same") {
 		
-			result = result[fy:cy, fx:cx]
+			dx = (cx - ix)/2
+			dy = (cy - iy)/2
+			
+			result = result[(1 + ceil(dy)):(cy - floor(dy)), (1 + ceil(dx)):(cx - floor(dx))]
 		}
 		
 		return(drop(result))
@@ -70,13 +73,13 @@ nnet_conv3 <- function(input, feature, shape = "full") {
 		
 		result = array(0, c(cy, cx, cz))
 		
-		for (ck in 0:(cz + 1)) {
-			for (cj in 1:(cy + 1)) {
-				for (ci in 1:(cx + 1)) {
+		for (ck in 2:(cz + 1)) {
+			for (cj in 2:(cy + 1)) {
+				for (ci in 2:(cx + 1)) {
 					for (kz in 1:iz) {
 						for (ky in 1:iy) {
 							for (kx in 1:ix) {
-								if ((ci - 1) > 0 && (ci - 1) <= cx && (cj - 1) > 0 && (cj - 1) <= cy && (ck - 1) > 0 && (ck - 1) <= cz && (ci - kx) > 0 && (ci - kx) <= fx && (cj - ky) > 0 && (cj - ky) <= fy && (ck - kz) > 0 && (ck - kz) <= fz) {
+								if (ci - kx > 0 && ci - kx <= fx && cj - ky > 0 && cj - ky <= fy && ck - kz > 0 && ck - kz <= fz) {
 									result[cj - 1, ci - 1, ck - 1] = result[cj - 1, ci - 1, ck -  1] + input[ky, kx, kz] * feature[cj - ky, ci - kx, ck - kz]
 								}
 							}
@@ -92,7 +95,11 @@ nnet_conv3 <- function(input, feature, shape = "full") {
 		
 		} else if (shape == "same") {
 		
-			result = result[fy:cy, fy:cx, fz:cz]
+			dx = (cx - ix)/2
+			dy = (cy - iy)/2
+			dz = (cz - iz)/2
+			
+			result = result[(1 + ceil(dy)):(cy - floor(dy)), (1 + ceil(dx)):(cx - floor(dx)), (1 + ceil(dz)):(cz - floor(dz))]
 		}
 		
 		return(drop(result))
@@ -117,7 +124,7 @@ nnet_pool <- function(input, feature, steps_) {
     cols = length(colseq)
     rows = length(rowseq)
     
-    result_ = array(0, c(rows, cols))
+    result = array(0, c(rows, cols))
     
     for (y in 1:rows) {
       for(x in 1:cols) {
@@ -136,11 +143,11 @@ nnet_pool <- function(input, feature, steps_) {
           py = iy  
         }
         
-        result_[y, x] = max(input[row:py, col:px])
+        result[y, x] = max(input[row:py, col:px])
       }
     }
     
-    return(result_)
+    return(result)
 
   } else {
     

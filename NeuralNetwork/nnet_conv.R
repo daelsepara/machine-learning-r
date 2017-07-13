@@ -3,111 +3,118 @@ require(pracma)
 # convolution layer
 nnet_conv <- function(input, feature, shape = "full") {
 	
-	# input dimensions
-	ix = dim(input)[2]
-	iy = dim(input)[1]
-	
-	# filter dimension
-	fx = dim(feature)[2]
-	fy = dim(feature)[1]
-	
-	# convolution dimensions
-	cx = ix + fx - 1
-	cy = iy + fy - 1
-	
-	if (iy >= fy && ix >= fx) {
-		
-		result = array(0, c(cy, cx))
-		
-		for (cj in 2:(cy + 1)) {
-			for (ci in 2:(cx + 1)) {
-				for (ky in 1:iy) {
-					for (kx in 1:ix) {
-						if (ci - kx > 0 && ci - kx <= fx && cj - ky > 0 && cj - ky <= fy) {
-							result[cj - 1, ci - 1] = result[cj - 1, ci - 1] + input[ky, kx] * feature[cj - ky, ci - kx]
-						}
-					}
-				}
-			}
-		}
-		
-		if (shape == "valid") {
-		
-			result = result[fy:(cy - fy + 1), fx:(cx - fx + 1)]
-		
-		} else if (shape == "same") {
-		
-			dx = (cx - ix)/2
-			dy = (cy - iy)/2
-			
-			result = result[(1 + ceil(dy)):(cy - floor(dy)), (1 + ceil(dx)):(cx - floor(dx))]
-		}
-		
-		return(drop(result))
-	
-	} else {
-		
-		stop('input and filter dimensions are incompatible')
-	}
+  # input dimensions
+  ix = dim(input)[2]
+  iy = dim(input)[1]
+  
+  # filter dimension
+  fx = dim(feature)[2]
+  fy = dim(feature)[1]
+  
+  # convolution dimensions
+  cx = ix + fx - 1
+  cy = iy + fy - 1
+  
+  if (iy >= fy && ix >= fx) {
+    
+    result = array(0, c(cy, cx, iz))
+    
+    for (cj in 2:(cy + 1)) {
+      for (ci in 2:(cx + 1)) {
+        for (ky in 1:iy) {
+          if (cj - ky > 0 && cj - ky <= fy) {
+            for (kx in 1:ix) {
+              if (ci - kx > 0 && ci - kx <= fx) {
+                result[cj - 1, ci - 1] = result[cj - 1, ci - 1] + input[ky, kx] * feature[cj - ky, ci - kx]
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    if (shape == "valid") {
+      
+      result = result[fy:(cy - fy + 1), fx:(cx - fx + 1)]
+      
+    } else if (shape == "same") {
+      
+      dx = (cx - ix)/2
+      dy = (cy - iy)/2
+      
+      result = result[(1 + ceil(dy)):(cy - floor(dy)), (1 + ceil(dx)):(cx - floor(dx))]
+    }
+    
+    return(drop(result))
+    
+  } else {
+    
+    stop('input and filter dimensions are incompatible')
+  }
 }
 
 # convolution layer
 nnet_conv3 <- function(input, feature, shape = "full") {
 	
-	# input dimensions
-	ix = dim(input)[2]
-	iy = dim(input)[1]
-	iz = dim(input)[3]
-	
-	# filter dimension
-	fx = dim(feature)[2]
-	fy = dim(feature)[1]
-	fz = dim(feature)[3]
-	
-	# convolution dimensions
-	cx = ix + fx - 1
-	cy = iy + fy - 1
-	cz = iz + fz - 1
-	
-	if (iy >= fy && ix >= fx && iz >= fz) {
-		
-		result = array(0, c(cy, cx, cz))
-		
-		for (ck in 2:(cz + 1)) {
-			for (cj in 2:(cy + 1)) {
-				for (ci in 2:(cx + 1)) {
-					for (kz in 1:iz) {
-						for (ky in 1:iy) {
-							for (kx in 1:ix) {
-								if (ci - kx > 0 && ci - kx <= fx && cj - ky > 0 && cj - ky <= fy && ck - kz > 0 && ck - kz <= fz) {
-									result[cj - 1, ci - 1, ck - 1] = result[cj - 1, ci - 1, ck -  1] + input[ky, kx, kz] * feature[cj - ky, ci - kx, ck - kz]
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		if (shape == "valid") {
-		
-			result = result[fy:(cy - fy + 1), fx:(cx - fx + 1), fz:(cz - fz + 1)]
-		
-		} else if (shape == "same") {
-		
-			dx = (cx - ix)/2
-			dy = (cy - iy)/2
-			dz = (cz - iz)/2
-			
-			result = result[(1 + ceil(dy)):(cy - floor(dy)), (1 + ceil(dx)):(cx - floor(dx)), (1 + ceil(dz)):(cz - floor(dz))]
-		}
-		
-		return(drop(result))
-	
-	} else {
-		
-		stop('input and filter dimensions are incompatible')
-	}
+  # input dimensions
+  ix = dim(input)[2]
+  iy = dim(input)[1]
+  iz = dim(input)[3]
+  
+  # filter dimension
+  fx = dim(feature)[2]
+  fy = dim(feature)[1]
+  fz = dim(feature)[3]
+  
+  # convolution dimensions
+  cx = ix + fx - 1
+  cy = iy + fy - 1
+  cz = iz + fz - 1
+  
+  if (iy >= fy && ix >= fx && iz >= fz) {
+    
+    result = array(0, c(cy, cx, cz))
+    
+    for (ck in 2:(cz + 1)) {
+      for (cj in 2:(cy + 1)) {
+        for (ci in 2:(cx + 1)) {
+          for (kz in 1:iz) {
+            if (ck - kz > 0 && ck - kz <= fz) {
+              for (ky in 1:iy) {
+                if (cj - ky > 0 && cj - ky <= fy)
+                {
+                  for (kx in 1:ix) {
+                    if (ci - kx > 0 && ci - kx <= fx) {
+                      result[cj - 1, ci - 1, ck - 1] = result[cj - 1, ci - 1, ck -  1] + input[ky, kx, kz] * feature[cj - ky, ci - kx, ck - kz]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    if (shape == "valid") {
+      
+      result = result[fy:(cy - fy + 1), fx:(cx - fx + 1), fz:(cz - fz + 1)]
+      
+    } else if (shape == "same") {
+      
+      dx = (cx - ix)/2
+      dy = (cy - iy)/2
+      dz = (cz - iz)/2
+      
+      result = result[(1 + ceil(dy)):(cy - floor(dy)), (1 + ceil(dx)):(cx - floor(dx)), (1 + ceil(dz)):(cz - floor(dz))]
+    }
+    
+    return(drop(result))
+    
+  } else {
+    
+    stop('input and filter dimensions are incompatible')
+  }
 }
 
 # pooling layer

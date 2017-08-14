@@ -127,7 +127,7 @@ nnet_labels <- function(output, num_labels) {
 }
 
 nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, softmax = FALSE) {
-# Network training using stochastic gradient descent and batch processing
+# Network training using gradient descent
   
   # determine network dimensions from user input
   j = hidden_units

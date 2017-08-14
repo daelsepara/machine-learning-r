@@ -4,12 +4,12 @@ require(pracma)
 nnet_conv <- function(input, feature, shape = "full") {
 	
   # input dimensions
-  ix = dim(input)[2]
-  iy = dim(input)[1]
+  ix = ncol(input)
+  iy = nrow(input)
   
   # filter dimension
-  fx = dim(feature)[2]
-  fy = dim(feature)[1]
+  fx = ncol(feature)
+  fy = nrow(feature)
   
   # convolution dimensions
   cx = ix + fx - 1
@@ -57,13 +57,13 @@ nnet_conv <- function(input, feature, shape = "full") {
 nnet_conv3 <- function(input, feature, shape = "full") {
 	
   # input dimensions
-  ix = dim(input)[2]
-  iy = dim(input)[1]
+  ix = ncol(input)
+  iy = nrow(input)
   iz = dim(input)[3]
   
   # filter dimension
-  fx = dim(feature)[2]
-  fy = dim(feature)[1]
+  fx = ncol(feature)
+  fy = nrow(feature)
   fz = dim(feature)[3]
   
   # convolution dimensions
@@ -120,8 +120,8 @@ nnet_conv3 <- function(input, feature, shape = "full") {
 # pooling layer
 nnet_pool <- function(input, feature, steps_) {
   
-  ix = dim(input)[2]
-  iy = dim(input)[1]
+  ix = ncol(input)
+  iy = nrow(input)
   
   if (ix >= feature && iy >= feature) {
     

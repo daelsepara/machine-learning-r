@@ -250,7 +250,11 @@ fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = N
 			}
 			
 			# Polack-Ribiere direction
-			s = ((t(df2) %*% df2 - t(df1) %*% df2) / (t(df1) %*% df1)) * s - df2
+			part1 = as.vector(t(df2) %*% df2)
+			part2 = as.vector(t(df1) %*% df2)
+			part3 = as.vector(t(df1) %*% df1)
+			
+			s = ((part1 - part2) / (part3)) * s - as.vector(df2)
 			
 			# swap derivatives
 			tmp = df1

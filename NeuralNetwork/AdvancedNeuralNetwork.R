@@ -145,7 +145,7 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   m = nrow(training_set)
   y_matrix = nnet_labels(output, num_labels)
   
-  while (iter < maxiter && Error > tol) {
+  while (!is.nan(Error) && (iter < maxiter && Error > tol)) {
 
     # for training, perform forward and backpropagation each iteration
     forward = nnet_forward(training_set, w_ji, w_kj, softmax)
@@ -180,6 +180,10 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
     }
   }
   
+  if  (is.nan(Error)) {
+    print(paste0('Error: ', Error))
+  }
+  
   # add prediction
   prediction = nnet_predict(test_set = training_set, w_ji = w_ji, w_kj = w_kj, softmax = softmax)
   
@@ -208,7 +212,7 @@ nnet_stochastic <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), t
     batch_size = m
   }
   
-  while (iter < maxiter && Error > tol) {
+  while (!is.nan(Error) && iter < maxiter && Error > tol) {
     for (i in 1:floor(m/batch_size)) {
       
       a = (i - 1) * batch_size + 1
@@ -250,7 +254,12 @@ nnet_stochastic <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), t
         cat(paste('iteration = ', iter, ' Error = ', Error, '\n'))
       }
       
-      if (iter >= maxiter || Error <= tol) {
+      if (is.nan(Error) || iter >= maxiter || Error <= tol) {
+        
+        if  (is.nan(Error)) {
+          print(paste0('Error: ', Error))
+        }
+        
         break
       }
     }

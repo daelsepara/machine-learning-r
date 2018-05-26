@@ -224,6 +224,8 @@ SMO_Platt <- function(X, Y, krnel, kpar1, kpar2, C, tol, steps, eps) {
 examineExampleP <- function(i2, glob, alpha, w, b, X, Y, krnel, kpar1, kpar2, C, tol, steps, stp, evals, eps,K) {
 # returns [retval, alpha, w, b, stp, evals, glob]
 
+  require(pracma)
+  
 	retval = 0
 	n = nrow(X)
 	D = ncol(X)
@@ -1134,6 +1136,8 @@ CalcKernel <- function(u, v, ker, kpar1, kpar2) {
 }
 
 test_smo <- function(krnel = 'linear', C = 1, kpar1 = 0, kpar2 = 0) {
+  
+  require(pracma)
   
   # number of features
   l = 2

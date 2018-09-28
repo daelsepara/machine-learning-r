@@ -354,8 +354,9 @@ svm_boundary <- function(X, y, model) {
 	
 	for (i in 1:ncol(X1)) {
 	   this_X = cbind(X1[,i], X2[,i])
-	   vals[, i] = svm_predict(model, this_X)$p
-	   pred[, i] = svm_predict(model, this_X)$pred
+	   this_p = svm_predict(model, this_X)
+	   vals[, i] = this_p$p
+	   pred[, i] = this_p$pred
 	}
 
 	z = t(vals)

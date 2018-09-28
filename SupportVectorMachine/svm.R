@@ -54,7 +54,7 @@ svm_linear <- function(x1, x2) {
 	x2 = array(x2, c(length(x2), 1))
 
 	# Compute the kernel
-	return(t(x1) %*% x2)  # dot product
+	return(t(x1) %*% x2)  # cross product
 }
 
 svm_fourier <- function(x1, x2, kernelParam = 0) {
@@ -295,11 +295,11 @@ svm_predict <- function(model, X) {
 	# [sdsepara] map model kernel function to an actual function
 	kernelFunction <- match.fun(model$kernelFunction)
 	
-	if (strcmp(model$kernelFunction,'linear_kernel')) {
+	if (strcmp(model$kernelFunction,'svm_linear')) {
 		# We can use the weights and bias directly if working with the 
 		# linear kernel
 		p = X %*% model$w + model$b
-	} else if (strcmp(model$kernelFunction, 'gaussian_kernel')) {
+	} else if (strcmp(model$kernelFunction, 'svm_gaussian')) {
 		# Vectorized RBF Kernel
 		# This is equivalent to computing the kernel on every pair of examples
 		X1 = as.matrix(rowSums(X^2))

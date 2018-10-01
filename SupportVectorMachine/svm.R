@@ -9,8 +9,8 @@ svm_polynomial <- function(x1, x2, kernelParam = c(0, 1)) {
 }
 
 svm_gaussian <- function(x1, x2, sigma) {
-#GAUSSIANKERNEL returns a radial basis function kernel between x1 and x2
-#   sim = gaussian_kernel(x1, x2, sigma) returns a gaussian kernel between x1 and x2
+#GAUSSIAN KERNEL returns a radial basis function kernel between x1 and x2
+#   sim = svm_gaussian(x1, x2, sigma) returns a gaussian kernel between x1 and x2
 #   and returns the value in sim
 #
 # Converted to R by: SD Separa (2016/03/18)
@@ -43,8 +43,8 @@ svm_sigmoid <- function(x1, x2, kernelParam = c(1, 0)) {
 }
   
 svm_linear <- function(x1, x2) {
-#LINEARKERNEL returns a linear kernel between x1 and x2
-#   sim = linear_kernel(x1, x2) returns a linear kernel between x1 and x2
+#LINEAR KERNEL returns a linear kernel between x1 and x2
+#   sim = svm_linear(x1, x2) returns a linear kernel between x1 and x2
 #   and returns the value in sim
 #
 # Converted to R by: SD Separa (2016/03/18)
@@ -128,11 +128,11 @@ svm_train <- function(X, Y, C, kernelFunction, kernelParam, tol, max_passes) {
 	# 
 	# We have implemented optimized vectorized version of the Kernels here so
 	# that the svm training will run faster.
-	if (strcmp(kernelFunc, 'linear_kernel')) {
+	if (strcmp(kernelFunc, 'svm_linear')) {
 		# Vectorized computation for the Linear Kernel
 		# This is equivalent to computing the kernel on every pair of examples
 		K = X %*% t(X)
-	} else if (strcmp(kernelFunc, 'gaussian_kernel')) {
+	} else if (strcmp(kernelFunc, 'svm_gaussian')) {
 		# Vectorized RBF Kernel
 		# This is equivalent to computing the kernel on every pair of examples
 		X2 = as.matrix(rowSums(X^2))

@@ -261,9 +261,9 @@ nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = arra
   return(list('yk' = yk, 'fn' = result$counts[1], 'gr' = result$counts[2], 'Error' = Error, 'w1' = w1, 'w2' = w2, 'w3' = w3, 'w4' = w4, 'prediction' = prediction))
 }
 
+# Network training using advanced optimization algorithm fmincg
 nnet_optimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE) {
-  # Network training using advanced optimization algorithm fmincg
-  
+
   y_matrix = nnet_labels(output, num_labels)
   
   # determine network dimensions from user input

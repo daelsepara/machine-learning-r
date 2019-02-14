@@ -64,8 +64,9 @@ nnet_backprop <- function(yk, z1, z2, z3, x1, x2, x3, x4, w1, w2, w3, w4, y_matr
   dw2 = t(d2) %*% x2
   dw1 = t(d1) %*% x1
   
-  cost = sum(-y_matrix * log(yk) - (1 - y_matrix) * log(1 - yk))
-    
+  # cost = sum(-y_matrix * log(yk) - (1 - y_matrix) * log(1 - yk))
+  cost = 0.5 * sum(d4 * d4)
+  
   cost = cost / m
   dw4 = dw4 / m
   dw3 = dw3 / m

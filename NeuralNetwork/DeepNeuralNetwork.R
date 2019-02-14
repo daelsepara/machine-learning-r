@@ -215,7 +215,7 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   # add prediction
   prediction = nnet_predict(test_set = training_set, w1 = w1, w2 = w2, w3 = w3, w4 = w4)
   
-  return(list('y_k' = yk, 'Error' = Error, 'iterations' = iter, 'w1' = w1, 'w2' = w2, 'w3' = w3, 'w4' = w4, 'prediction' = prediction))
+  return(list('yk' = yk, 'Error' = Error, 'iterations' = iter, 'w1' = w1, 'w2' = w2, 'w3' = w3, 'w4' = w4, 'prediction' = prediction))
 }
 
 # Network training using R's optimizer

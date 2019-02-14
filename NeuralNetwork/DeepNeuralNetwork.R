@@ -76,7 +76,7 @@ nnet_backprop <- function(yk, z1, z2, z3, x1, x2, x3, x4, w1, w2, w3, w4, y_matr
 }
 
 # Neutral network cost function for use with advanced optimization method (fmincg/optim)
-nnet_cost <- function(theta, input, y_matrix, hidden_units, num_labels) {
+nnet_cost <- function(theta, input, y_matrix, hidden_units, num_labels, P5 = NULL, P6 = NULL, P7 = NULL) {
   
   n = ncol(input)
   
@@ -233,22 +233,22 @@ nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = arra
   w3 = nnet_weights(min_max, j, j + 1, isGaussian)
   w4 = nnet_weights(min_max, num_labels, j + 1, isGaussian)
   
-  theta = c(as.vector(result$w1), as.vector(result$w2), as.vector(result$w3), as.vector(result$w4))
+  theta = c(as.vector(w1), as.vector(w2), as.vector(w3), as.vector(w4))
   
   # optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
-  result = optim(par = theta, fn = function(theta) { return(nnet_cost(theta, training_set, y_matrix, hidden_units, num_labels)$J) }, gr = function(theta) { return(nnet_cost(theta, training_set, y_matrix, hidden_units, num_labels)$grad) }, control = list('maxit' = maxiter), method = method)
+  result = optim(par = theta, fn = function(theta) { return(nnet_cost(theta, training_set, y_matrix, j, num_labels)$J) }, gr = function(theta) { return(nnet_cost(theta, training_set, y_matrix, j, num_labels)$grad) }, control = list('maxit' = maxiter), method = method)
   
-  o1 = hidden_units * (inputs + 1)
-  w1 = array(result$par[1:o1], c(hidden_units, inputs + 1))
+  o1 = j * (inputs + 1)
+  w1 = array(result$par[1:o1], c(j, inputs + 1))
   
-  o2 = o1 + hidden_units * (hidden_units + 1)
-  w2 = array(result$par[(1 + o1):o2], c(hidden_units, hidden_units + 1))
+  o2 = o1 + j * (j + 1)
+  w2 = array(result$par[(1 + o1):o2], c(j, j + 1))
   
-  o3 = o2 + hidden_units * (hidden_units + 1)
-  w3 = array(result$par[(1 + o2):o3], c(hidden_units, hidden_units + 1))
+  o3 = o2 + j * (j + 1)
+  w3 = array(result$par[(1 + o2):o3], c(j, j + 1))
   
-  o4 = o3 + num_labels * (hidden_units + 1)
-  w4 = array(result$par[(1 + o3):o4], c(num_labels, hidden_units + 1))
+  o4 = o3 + num_labels * (j + 1)
+  w4 = array(result$par[(1 + o3):o4], c(num_labels, j + 1))
   
   # performance
   Error = result$value
@@ -258,4 +258,45 @@ nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = arra
   prediction = nnet_predict(test_set = training_set, w1 = w1, w2 = w2, w3 = w3, w4 = w4)
   
   return(list('yk' = yk, 'fn' = result$counts[1], 'gr' = result$counts[2], 'Error' = Error, 'w1' = w1, 'w2' = w2, 'w3' = w3, 'w4' = w4, 'prediction' = prediction))
+}
+
+nnet_optimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE) {
+  # Network training using advanced optimization algorithm fmincg
+  
+  y_matrix = nnet_labels(output, num_labels)
+  
+  # determine network dimensions from user input
+  j = hidden_units
+  inputs = ncol(training_set)
+  
+  # initialize weights with random values
+  w1 = nnet_weights(min_max, j, inputs + 1, isGaussian)
+  w2 = nnet_weights(min_max, j, j + 1, isGaussian)
+  w3 = nnet_weights(min_max, j, j + 1, isGaussian)
+  w4 = nnet_weights(min_max, num_labels, j + 1, isGaussian)
+  
+  theta = c(as.vector(w1), as.vector(w2), as.vector(w3), as.vector(w4))
+  
+  result = fmincg(nnet_cost, theta, maxiter, training_set, y_matrix, j, num_labels, NULL, NULL, NULL)
+  
+  o1 = j * (inputs + 1)
+  w1 = array(result$X[1:o1], c(j, inputs + 1))
+  
+  o2 = o1 + j * (j + 1)
+  w2 = array(result$X[(1 + o1):o2], c(j, j + 1))
+  
+  o3 = o2 + j * (j + 1)
+  w3 = array(result$X[(1 + o2):o3], c(j, j + 1))
+  
+  o4 = o3 + num_labels * (j + 1)
+  w4 = array(result$X[(1 + o3):o4], c(num_labels, j + 1))
+  
+  # performance
+  Error = result$cost
+  yk = nnet_forward(training_set, w1, w2, w3, w4)$yk
+  
+  # add prediction
+  prediction = nnet_predict(test_set = training_set, w1 = w1, w2 = w2, w3 = w3, w4 = w4)
+  
+  return(list('yk' = yk, 'iterations' = result$i, 'Error' = Error, 'w1' = w1, 'w2' = w2, 'w3' = w3, 'w4' = w4, 'prediction' = prediction))
 }

@@ -75,6 +75,35 @@ nnet_backprop <- function(yk, z1, z2, z3, x1, x2, x3, x4, w1, w2, w3, w4, y_matr
   return(list('dw1' = dw1, 'dw2' = dw2, 'dw3' = dw3, 'dw4' = dw4, 'Error' = cost))	
 }
 
+# Neutral network cost function for use with advanced optimization method (fmincg/optim)
+nnet_cost <- function(theta, input, y_matrix, hidden_units, num_labels) {
+  
+  n = ncol(input)
+  
+  # roll up vectors into arrays
+  o1 = hidden_units * (n + 1)
+  w1 = array(theta[1:o1], c(hidden_units, n + 1))
+  
+  o2 = o1 + hidden_units * (hidden_units + 1)
+  w2 = array(theta[(1 + o1):o2], c(hidden_units, hidden_units + 1))
+  
+  o3 = o2 + hidden_units * (hidden_units + 1)
+  w3 = array(theta[(1 + o2):o3], c(hidden_units, hidden_units + 1))
+  
+  o4 = o3 + num_labels * (hidden_units + 1)
+  w4 = array(theta[(1 + o3):o4], c(num_labels, hidden_units + 1))
+  
+  # compute cost function (J) and its gradients (partial derivatives)
+  # using forward and backpropagation
+  forward = nnet_forward(input, w1, w2, w3, w4)
+  result = nnet_backprop(forward$yk, forward$z1, forward$z2, forward$z3, forward$x1, forward$x2, forward$x3, forward$x4, w1, w2, w3, w4, y_matrix)
+
+  # unroll gradient matrices into one vector
+  grad = c(as.vector(result$dw1), as.vector(result$dw2), as.vector(result$dw3), as.vector(result$dw4))
+  
+  return(list('J' = result$Error, 'grad' = grad))
+}
+
 # create labels for multi-class classification
 nnet_labels <- function(output, num_labels) {
   
@@ -187,4 +216,46 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
   prediction = nnet_predict(test_set = training_set, w1 = w1, w2 = w2, w3 = w3, w4 = w4)
   
   return(list('y_k' = yk, 'Error' = Error, 'iterations' = iter, 'w1' = w1, 'w2' = w2, 'w3' = w3, 'w4' = w4, 'prediction' = prediction))
+}
+
+# Network training using R's optimizer
+nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, method = 'L-BFGS-B') {
+
+  y_matrix = nnet_labels(output, num_labels)
+  
+  # determine network dimensions from user input
+  j = hidden_units
+  inputs = ncol(training_set)
+  
+  # initialize weights with random values
+  w1 = nnet_weights(min_max, j, inputs + 1, isGaussian)
+  w2 = nnet_weights(min_max, j, j + 1, isGaussian)
+  w3 = nnet_weights(min_max, j, j + 1, isGaussian)
+  w4 = nnet_weights(min_max, num_labels, j + 1, isGaussian)
+  
+  theta = c(as.vector(result$w1), as.vector(result$w2), as.vector(result$w3), as.vector(result$w4))
+  
+  # optim works with functions with one argument/parameter. We define anonymous functions (which are just wrappers to our cost function) to acheive the desired effect
+  result = optim(par = theta, fn = function(theta) { return(nnet_cost(theta, training_set, y_matrix, hidden_units, num_labels)$J) }, gr = function(theta) { return(nnet_cost(theta, training_set, y_matrix, hidden_units, num_labels)$grad) }, control = list('maxit' = maxiter), method = method)
+  
+  o1 = hidden_units * (inputs + 1)
+  w1 = array(result$par[1:o1], c(hidden_units, inputs + 1))
+  
+  o2 = o1 + hidden_units * (hidden_units + 1)
+  w2 = array(result$par[(1 + o1):o2], c(hidden_units, hidden_units + 1))
+  
+  o3 = o2 + hidden_units * (hidden_units + 1)
+  w3 = array(result$par[(1 + o2):o3], c(hidden_units, hidden_units + 1))
+  
+  o4 = o3 + num_labels * (hidden_units + 1)
+  w4 = array(result$par[(1 + o3):o4], c(num_labels, hidden_units + 1))
+  
+  # performance
+  Error = result$value
+  yk = nnet_forward(training_set, w1, w2, w3, w4)$yk
+  
+  # add prediction
+  prediction = nnet_predict(test_set = training_set, w1 = w1, w2 = w2, w3 = w3, w4 = w4)
+  
+  return(list('yk' = yk, 'fn' = result$counts[1], 'gr' = result$counts[2], 'Error' = Error, 'w1' = w1, 'w2' = w2, 'w3' = w3, 'w4' = w4, 'prediction' = prediction))
 }

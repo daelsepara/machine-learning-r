@@ -108,6 +108,11 @@ fmincg <- function(f, X, options_ = 100, P1 = NULL, P2 = NULL, P3 = NULL, P4 = N
 		f2 = eval_$J
 		df2 = eval_$grad
 		
+		if (is.nan(f2))
+		{
+			return(list('X' = X, 'cost' = fX, 'iterations' = i))
+		}
+		
 		# count epochs?!
 		i = i + (runLength < 0)
 		

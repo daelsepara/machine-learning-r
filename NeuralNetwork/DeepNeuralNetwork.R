@@ -301,3 +301,82 @@ nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = arra
   
   return(list('yk' = yk, 'iterations' = result$i, 'Error' = Error, 'w1' = w1, 'w2' = w2, 'w3' = w3, 'w4' = w4, 'prediction' = prediction))
 }
+
+# Network training using stochastic gradient descent and batch processing
+nnet_stochastic <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, batch_size = NULL) {
+
+  # determine network dimensions from user input
+  j = hidden_units
+  inputs = ncol(training_set)
+  
+  # initialize weights with random values
+  w1 = nnet_weights(min_max, j, inputs + 1, isGaussian)
+  w2 = nnet_weights(min_max, j, j + 1, isGaussian)
+  w3 = nnet_weights(min_max, j, j + 1, isGaussian)
+  w4 = nnet_weights(min_max, num_labels, j + 1, isGaussian)
+  
+  iter = 0
+  Error = 1.0
+  
+  y_k = numeric(0)
+  
+  m = nrow(training_set)
+  
+  if (is.null(batch_size) || batch_size > m || batch_size < 1) {
+    batch_size = m
+  }
+  
+  while (!is.nan(Error) && iter < maxiter && Error > tol) {
+    for (i in 1:floor(m/batch_size)) {
+      
+      a = (i - 1) * batch_size + 1
+      b = a + batch_size - 1
+      
+      # train a batch of samples
+      batch = array(training_set[a:b,], c(batch_size, inputs))
+      
+      # generate labels for batched samples
+      y_matrix = nnet_labels(array(output[a:b], c(batch_size, 1)), num_labels)
+      
+      # for training, perform forward and backpropagation each iteration, no regularization
+      forward = nnet_forward(batch, w1, w2, w3, w4)
+      backward = nnet_backprop(forward$yk, forward$z1, forward$z2, forward$z3, forward$x1, forward$x2, forward$x3, forward$x4, w1, w2, w3, w4, y_matrix)
+      
+      dw4 = learning_rate * backward$dw4
+      dw3 = learning_rate * backward$dw3
+      dw2 = learning_rate * backward$dw2
+      dw1 = learning_rate * backward$dw1
+      
+      # update weights (using learning rate and gradient descent)
+      w4 = w4 - dw4
+      w3 = w3 - dw3
+      w2 = w2 - dw2
+      w1 = w1 - dw1
+      
+      # save current performance
+      Error = backward$Error
+      
+      iter = iter + 1
+      
+      if (iter %% 1000 == 0) {
+        cat(paste('iteration = ', iter, ' Error = ', Error, '\n'))
+      }
+      
+      if (is.nan(Error) || iter >= maxiter || Error <= tol) {
+        
+        if  (is.nan(Error)) {
+          print(paste0('Error: ', Error))
+        }
+        
+        break
+      }
+    }
+  }
+  
+  yk = nnet_forward(training_set, w1, w2, w3, w4)$yk
+  
+  # add prediction
+  prediction = nnet_predict(test_set = training_set, w1 = w1, w2 = w2, w3 = w3, w4 = w4)
+  
+  return(list('yk' = yk, 'Error' = Error, 'batch_size' = batch_size, 'iterations' = iter, 'w1' = w1, 'w2' = w2, 'w3' = w3, 'w4' = w4, 'prediction' = prediction))
+}

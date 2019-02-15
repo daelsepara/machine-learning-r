@@ -286,7 +286,7 @@ nnet_weights <- function(min_max = 1, m = 1, n = 1, isGaussian = FALSE) {
   }  
 }
 
-nnet_optimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, softmax = FALSE) {
+nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, softmax = FALSE) {
 # Network training using advanced optimization algorithm fmincg
   
   y_matrix = nnet_labels(output, num_labels)
@@ -316,7 +316,7 @@ nnet_optimize <- function(maxiter = 100, training_set = array(0) , output = arra
   return(list('y_k' = y_k, 'Error' = Error, 'lambda' = lambda, 'iterations' = result$i, 'w_kj' = w_kj, 'w_ji' = w_ji, 'prediction' = prediction))
 }
 
-nnet_minimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, method = 'L-BFGS-B', softmax = FALSE) {
+nnet_optimize <- function(maxiter = 100, training_set = array(0) , output = array(0), hidden_units = 0, num_labels = 1, min_max = 1, isGaussian = FALSE, lambda = 0, method = 'L-BFGS-B', softmax = FALSE) {
 # Network training using R's optimizer
   
   y_matrix = nnet_labels(output, num_labels)

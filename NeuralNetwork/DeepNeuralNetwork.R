@@ -3,7 +3,7 @@
 # Sigmoid activation function
 nnet_sigmoid <- function(x) {
   
-  return(1/(1 + exp(-x)))
+  return (1/(1 + exp(-x)))
 }
 
 # 1st-derivative of sigmoid activation function
@@ -11,7 +11,7 @@ nnet_dsigmoid <- function(x) {
   
   z = nnet_sigmoid(x)
   
-  return(z * (1 - z))
+  return (z * (1 - z))
 }
 
 # Forward propagation
@@ -59,19 +59,13 @@ nnet_backprop <- function(yk, z1, z2, z3, x1, x2, x3, x4, w1, w2, w3, w4, y_matr
   d2 = d3 %*% w3[, 2:ncol(w3)] * nnet_dsigmoid(z2)
   d1 = d2 %*% w2[, 2:ncol(w2)] * nnet_dsigmoid(z1)
   
-  dw4 = t(d4) %*% x4
-  dw3 = t(d3) %*% x3
-  dw2 = t(d2) %*% x2
-  dw1 = t(d1) %*% x1
+  dw4 = t(d4) %*% x4 / m
+  dw3 = t(d3) %*% x3 / m
+  dw2 = t(d2) %*% x2 / m
+  dw1 = t(d1) %*% x1 / m
   
-  # cost = sum(-y_matrix * log(yk) - (1 - y_matrix) * log(1 - yk))
-  cost = 0.5 * sum(d4 * d4)
-  
-  cost = cost / m
-  dw4 = dw4 / m
-  dw3 = dw3 / m
-  dw2 = dw2 / m
-  dw1 = dw1 / m
+  # cost = sum(-y_matrix * log(yk) - (1 - y_matrix) * log(1 - yk))  / m
+  cost = 0.5 * sum(d4 * d4)  / m
   
   return(list('dw1' = dw1, 'dw2' = dw2, 'dw3' = dw3, 'dw4' = dw4, 'Error' = cost))	
 }
@@ -186,16 +180,11 @@ nnet_train <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), traini
     forward = nnet_forward(training_set, w1, w2, w3, w4)
     backward = nnet_backprop(forward$yk, forward$z1, forward$z2, forward$z3, forward$x1, forward$x2, forward$x3, forward$x4, w1, w2, w3, w4, y_matrix)
     
-    dw4 = learning_rate * backward$dw4
-    dw3 = learning_rate * backward$dw3
-    dw2 = learning_rate * backward$dw2
-    dw1 = learning_rate * backward$dw1
-    
     # update weights (using learning rate and gradient descent)
-    w4 = w4 - dw4
-    w3 = w3 - dw3
-    w2 = w2 - dw2
-    w1 = w1 - dw1
+    w4 = w4 - learning_rate * backward$dw4
+    w3 = w3 - learning_rate * backward$dw3
+    w2 = w2 - learning_rate * backward$dw2
+    w1 = w1 - learning_rate * backward$dw1
     
     # save current performance
     Error = backward$Error
@@ -342,16 +331,11 @@ nnet_stochastic <- function(maxiter = 100, learning_rate = 0.1, tol = 10^(-3), t
       forward = nnet_forward(batch, w1, w2, w3, w4)
       backward = nnet_backprop(forward$yk, forward$z1, forward$z2, forward$z3, forward$x1, forward$x2, forward$x3, forward$x4, w1, w2, w3, w4, y_matrix)
       
-      dw4 = learning_rate * backward$dw4
-      dw3 = learning_rate * backward$dw3
-      dw2 = learning_rate * backward$dw2
-      dw1 = learning_rate * backward$dw1
-      
       # update weights (using learning rate and gradient descent)
-      w4 = w4 - dw4
-      w3 = w3 - dw3
-      w2 = w2 - dw2
-      w1 = w1 - dw1
+      w4 = w4 - learning_rate * backward$dw4
+      w3 = w3 - learning_rate * backward$dw3
+      w2 = w2 - learning_rate * backward$dw2
+      w1 = w1 - learning_rate * backward$dw1
       
       # save current performance
       Error = backward$Error
